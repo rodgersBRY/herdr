@@ -25,7 +25,11 @@ class CowRepository {
 
   Future<Cow?> getById(String localId) async {
     final db = await _db.db;
-    final maps = await db.query('cows', where: 'local_id = ?', whereArgs: [localId]);
+    final maps = await db.query(
+      'cows',
+      where: 'local_id = ?',
+      whereArgs: [localId],
+    );
     if (maps.isEmpty) return null;
     return Cow.fromMap(maps.first);
   }
@@ -39,8 +43,12 @@ class CowRepository {
 
   Future<void> update(Cow cow) async {
     final db = await _db.db;
-    await db.update('cows', cow.copyWith(isSynced: 0).toMap(),
-        where: 'local_id = ?', whereArgs: [cow.localId]);
+    await db.update(
+      'cows',
+      cow.copyWith(isSynced: 0).toMap(),
+      where: 'local_id = ?',
+      whereArgs: [cow.localId],
+    );
   }
 
   Future<void> delete(String localId) async {
