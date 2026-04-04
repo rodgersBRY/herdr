@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/cows_controller.dart';
-import '../models/cow.dart';
 import '../../../config/app_theme.dart';
 import '../../../routes/app_routes.dart';
 

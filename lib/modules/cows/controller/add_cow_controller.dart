@@ -12,10 +12,13 @@ class AddCowController extends GetxController {
 
   Future<void> save() async {
     if (!formKey.currentState!.saveAndValidate()) return;
+
     final values = formKey.currentState!.value;
     isSaving.value = true;
+
     try {
       final now = DateTime.now().toIso8601String();
+
       final cow = Cow(
         localId: '',
         tag: values['tag'] as String,
@@ -32,8 +35,11 @@ class AddCowController extends GetxController {
         notes: values['notes'] as String?,
         createdAt: now,
       );
+
       await _repo.insert(cow);
+
       Get.back(result: true);
+      
       Get.snackbar('Saved', 'Cow added successfully',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF2E7D32),

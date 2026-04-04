@@ -14,23 +14,29 @@ class CowsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+
     loadCows();
+
     searchCtrl.addListener(_onSearch);
   }
 
   @override
   void onClose() {
     searchCtrl.removeListener(_onSearch);
+
     searchCtrl.dispose();
+
     super.onClose();
   }
 
   void _onSearch() {
     final q = searchCtrl.text.trim();
+
     if (q.isEmpty) {
       filtered.value = cows;
     } else {
       final ql = q.toLowerCase();
+
       filtered.value = cows
           .where((c) =>
               c.tag.toLowerCase().contains(ql) ||
@@ -41,8 +47,10 @@ class CowsController extends GetxController {
 
   Future<void> loadCows() async {
     isLoading.value = true;
+
     try {
       cows.value = await _repo.getAll();
+      
       _onSearch();
     } finally {
       isLoading.value = false;

@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import '../controller/add_cow_controller.dart';
-import '../../../config/app_theme.dart';
 import '../../../core/utils/constants.dart';
 
 class AddCowView extends StatelessWidget {
