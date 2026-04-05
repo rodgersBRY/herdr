@@ -141,23 +141,39 @@ class BreedingRepository {
 
   Future<void> _mergeCalf(Map<String, dynamic> map) async {
     final db = await _db.db;
-    final existing = await db.query(
-      'cows',
-      where: 'server_id = ?',
-      whereArgs: [map['id']],
-      limit: 1,
-    );
-    final calf = Cow.fromApi(
+    final draftCalf = Cow.fromApi(
       map,
-      localId: existing.isNotEmpty ? existing.first['local_id'] as String : _uuid.v4(),
+      localId: _uuid.v4(),
       syncAction: AppConstants.syncSynced,
       lastError: null,
     );
-    await db.insert(
+
+    final existing = draftCalf.serverId == null
+        ? const <Map<String, Object?>>[]
+        : await db.query(
+            'cows',
+            where: 'server_id = ?',
+            whereArgs: [draftCalf.serverId],
+            limit: 1,
+          );
+
+    final calf = existing.isNotEmpty
+        ? draftCalf.copyWith(
+            localId: existing.first['local_id'] as String,
+            createdAt: existing.first['created_at'] as String? ?? draftCalf.createdAt,
+          )
+        : draftCalf;
+
+    final updated = await db.update(
       'cows',
       calf.toDbMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
+      where: 'local_id = ?',
+      whereArgs: [calf.localId],
     );
+
+    if (updated == 0) {
+      await db.insert('cows', calf.toDbMap());
+    }
   }
 
   Future<void> _upsertDb(BreedingRecord record) async {

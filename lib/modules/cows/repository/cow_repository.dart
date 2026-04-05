@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/database/database_helper.dart';
@@ -224,10 +223,15 @@ class CowRepository {
 
   Future<void> _upsertDb(Cow cow) async {
     final db = await _db.db;
-    await db.insert(
+    final updated = await db.update(
       'cows',
       cow.toDbMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
+      where: 'local_id = ?',
+      whereArgs: [cow.localId],
     );
+
+    if (updated == 0) {
+      await db.insert('cows', cow.toDbMap());
+    }
   }
 }
