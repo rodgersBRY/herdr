@@ -1,37 +1,59 @@
+import 'package:flutter/foundation.dart';
+
 class AppConstants {
-  static const String baseUrl = 'http://192.168.1.100:8000/api';
+  static const String _configuredBaseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: '',
+  );
 
-  // Cow status
+  static String get baseUrl {
+    if (_configuredBaseUrl.isNotEmpty) {
+      return _configuredBaseUrl;
+    }
+
+    if (kIsWeb) {
+      return 'http://localhost:8888/v1';
+    }
+
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.android:
+        return 'http://10.0.2.2:8888/v1';
+      default:
+        return 'http://localhost:8888/v1';
+    }
+  }
+
+  static const int defaultPageSize = 100;
+
+  static const String syncCreate = 'create';
+  static const String syncUpdate = 'update';
+  static const String syncSynced = 'synced';
+  static const String syncFailed = 'failed';
+
   static const String statusActive = 'active';
-  static const String statusDry = 'dry';
-  static const String statusPregnant = 'pregnant';
   static const String statusSold = 'sold';
-  static const String statusDeceased = 'deceased';
+  static const String statusDead = 'dead';
 
-  // Health record types
+  static const String sourceBought = 'bought';
+  static const String sourceBorn = 'born';
+
   static const String healthTreatment = 'treatment';
   static const String healthVaccination = 'vaccination';
   static const String healthDeworming = 'deworming';
-  static const String healthOther = 'other';
 
-  // Breeding record types
   static const String breedingHeat = 'heat';
   static const String breedingService = 'service';
   static const String breedingPregnancyCheck = 'pregnancy_check';
   static const String breedingCalving = 'calving';
 
-  // Expense categories
-  static const String expenseFeed = 'feed';
-  static const String expenseMedicine = 'medicine';
-  static const String expenseVet = 'vet';
-  static const String expenseLabour = 'labour';
+  static const String milkMorning = 'morning';
+  static const String milkEvening = 'evening';
+
+  static const String expenseTreatment = 'treatment';
+  static const String expenseDrugs = 'drugs';
+  static const String expenseSupplement = 'supplement';
   static const String expenseOther = 'other';
 
-  // Cow genders
-  static const String genderFemale = 'female';
-  static const String genderMale = 'male';
-
-  // Cow breeds
   static const List<String> breeds = [
     'Friesian',
     'Jersey',
@@ -41,11 +63,5 @@ class AppConstants {
     'Holstein',
     'Zebu',
     'Crossbreed',
-    'Other',
   ];
-
-  // Pregnancy results
-  static const String pregnantYes = 'pregnant';
-  static const String pregnantNo = 'open';
-  static const String pregnantUncertain = 'uncertain';
 }

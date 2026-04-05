@@ -1,84 +1,147 @@
+import '../../../core/utils/constants.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+part 'milk_log.g.dart';
+
+double _doubleFromJson(dynamic value) {
+  if (value is num) {
+    return value.toDouble();
+  }
+  return double.tryParse(value?.toString() ?? '') ?? 0;
+}
+
+@JsonSerializable(includeIfNull: false)
 class MilkLog {
+  @JsonKey(includeFromJson: false, includeToJson: false)
   final String localId;
+  @JsonKey(name: 'id')
   final String? serverId;
-  final int isSynced;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  final String syncAction;
+  @JsonKey(includeFromJson: false, includeToJson: false)
   final String cowLocalId;
   final String logDate;
-  final double morningLitres;
-  final double eveningLitres;
+  @JsonKey(fromJson: _doubleFromJson)
+  final double litres;
+  final String period;
   final String? notes;
   final String createdAt;
-
-  // Optional join fields
-  final String? cowTag;
-  final String? cowName;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  final String updatedAt;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  final String? lastError;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  final String? cowTagNumber;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  final String? cowBreed;
 
   const MilkLog({
-    required this.localId,
+    this.localId = '',
     this.serverId,
-    this.isSynced = 0,
-    required this.cowLocalId,
-    required this.logDate,
-    this.morningLitres = 0,
-    this.eveningLitres = 0,
+    this.syncAction = AppConstants.syncSynced,
+    this.cowLocalId = '',
+    this.logDate = '',
+    this.litres = 0,
+    this.period = AppConstants.milkMorning,
     this.notes,
-    required this.createdAt,
-    this.cowTag,
-    this.cowName,
+    this.createdAt = '',
+    this.updatedAt = '',
+    this.lastError,
+    this.cowTagNumber,
+    this.cowBreed,
   });
 
-  double get totalLitres => morningLitres + eveningLitres;
+  factory MilkLog.fromJson(Map<String, dynamic> json) => _$MilkLogFromJson(json);
 
-  factory MilkLog.fromMap(Map<String, dynamic> map) => MilkLog(
-        localId: map['local_id'],
-        serverId: map['server_id'],
-        isSynced: map['is_synced'] ?? 0,
-        cowLocalId: map['cow_local_id'],
-        logDate: map['log_date'],
-        morningLitres: (map['morning_litres'] as num?)?.toDouble() ?? 0,
-        eveningLitres: (map['evening_litres'] as num?)?.toDouble() ?? 0,
-        notes: map['notes'],
-        createdAt: map['created_at'],
-        cowTag: map['cow_tag'],
-        cowName: map['cow_name'],
+  factory MilkLog.fromDb(Map<String, dynamic> map) => MilkLog(
+        localId: map['local_id'] as String,
+        serverId: map['server_id'] as String?,
+        syncAction:
+            (map['sync_action'] as String?) ?? AppConstants.syncSynced,
+        cowLocalId: map['cow_local_id'] as String,
+        logDate: map['log_date'] as String,
+        litres: (map['litres'] as num).toDouble(),
+        period: map['period'] as String,
+        notes: map['notes'] as String?,
+        createdAt: map['created_at'] as String,
+        updatedAt: map['updated_at'] as String,
+        lastError: map['last_error'] as String?,
+        cowTagNumber: map['cow_tag_number'] as String?,
+        cowBreed: map['cow_breed'] as String?,
       );
 
-  Map<String, dynamic> toMap() => {
+  factory MilkLog.fromApi(
+    Map<String, dynamic> map, {
+    required String localId,
+    required String cowLocalId,
+    required String syncAction,
+    String? lastError,
+  }) =>
+      MilkLog.fromJson(map).copyWith(
+        localId: localId,
+        cowLocalId: cowLocalId,
+        syncAction: syncAction,
+        updatedAt: DateTime.now().toIso8601String(),
+        lastError: lastError,
+      );
+
+  Map<String, dynamic> toDbMap() => {
         'local_id': localId,
         'server_id': serverId,
-        'is_synced': isSynced,
+        'sync_action': syncAction,
         'cow_local_id': cowLocalId,
         'log_date': logDate,
-        'morning_litres': morningLitres,
-        'evening_litres': eveningLitres,
+        'litres': litres,
+        'period': period,
         'notes': notes,
         'created_at': createdAt,
+        'updated_at': updatedAt,
+        'last_error': lastError,
       };
+
+  Map<String, dynamic> toCreatePayload() => {
+        'log_date': logDate,
+        'litres': litres,
+        'period': period,
+        if (notes != null && notes!.isNotEmpty) 'notes': notes,
+      };
+
+  Map<String, dynamic> toUpdatePayload() => {
+        'litres': litres,
+        'period': period,
+        'notes': notes,
+      };
+
+  Map<String, dynamic> toJson() => _$MilkLogToJson(this);
 
   MilkLog copyWith({
     String? localId,
     String? serverId,
-    int? isSynced,
+    String? syncAction,
     String? cowLocalId,
     String? logDate,
-    double? morningLitres,
-    double? eveningLitres,
+    double? litres,
+    String? period,
     String? notes,
     String? createdAt,
-    String? cowTag,
-    String? cowName,
+    String? updatedAt,
+    String? lastError,
+    String? cowTagNumber,
+    String? cowBreed,
   }) =>
       MilkLog(
         localId: localId ?? this.localId,
         serverId: serverId ?? this.serverId,
-        isSynced: isSynced ?? this.isSynced,
+        syncAction: syncAction ?? this.syncAction,
         cowLocalId: cowLocalId ?? this.cowLocalId,
         logDate: logDate ?? this.logDate,
-        morningLitres: morningLitres ?? this.morningLitres,
-        eveningLitres: eveningLitres ?? this.eveningLitres,
+        litres: litres ?? this.litres,
+        period: period ?? this.period,
         notes: notes ?? this.notes,
         createdAt: createdAt ?? this.createdAt,
-        cowTag: cowTag ?? this.cowTag,
-        cowName: cowName ?? this.cowName,
+        updatedAt: updatedAt ?? this.updatedAt,
+        lastError: lastError,
+        cowTagNumber: cowTagNumber ?? this.cowTagNumber,
+        cowBreed: cowBreed ?? this.cowBreed,
       );
 }

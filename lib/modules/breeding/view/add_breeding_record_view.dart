@@ -15,6 +15,7 @@ class AddBreedingRecordView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ctrl = Get.put(_AddBreedingCtrl());
+    
     return Scaffold(
       appBar: AppBar(title: Text('Breeding — ${ctrl.cow.tag}')),
       body: SingleChildScrollView(
