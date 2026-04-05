@@ -191,6 +191,7 @@ class _HealthTab extends StatelessWidget {
         children: [
           const _EmptyTab(message: 'No health records yet.'),
           _Fab(
+            heroTag: 'cow_profile_health_empty_fab',
             onPressed: () async {
               await Get.toNamed(AppRoutes.addHealthRecord, arguments: ctrl.cow);
               await ctrl.loadAll();
@@ -222,6 +223,7 @@ class _HealthTab extends StatelessWidget {
         },
       ),
       floatingActionButton: _Fab(
+        heroTag: 'cow_profile_health_fab',
         onPressed: () async {
           await Get.toNamed(AppRoutes.addHealthRecord, arguments: ctrl.cow);
           await ctrl.loadAll();
@@ -243,6 +245,7 @@ class _BreedingTab extends StatelessWidget {
         children: [
           const _EmptyTab(message: 'No breeding records yet.'),
           _Fab(
+            heroTag: 'cow_profile_breeding_empty_fab',
             onPressed: () async {
               await Get.toNamed(AppRoutes.addBreedingRecord, arguments: ctrl.cow);
               await ctrl.loadAll();
@@ -276,6 +279,7 @@ class _BreedingTab extends StatelessWidget {
         },
       ),
       floatingActionButton: _Fab(
+        heroTag: 'cow_profile_breeding_fab',
         onPressed: () async {
           await Get.toNamed(AppRoutes.addBreedingRecord, arguments: ctrl.cow);
           await ctrl.loadAll();
@@ -297,6 +301,7 @@ class _ExpenseTab extends StatelessWidget {
         children: [
           const _EmptyTab(message: 'No expenses recorded for this cow.'),
           _Fab(
+            heroTag: 'cow_profile_expense_empty_fab',
             onPressed: () async {
               await Get.toNamed(AppRoutes.addExpense, arguments: ctrl.cow);
               await ctrl.loadAll();
@@ -355,6 +360,7 @@ class _ExpenseTab extends StatelessWidget {
         ],
       ),
       floatingActionButton: _Fab(
+        heroTag: 'cow_profile_expense_fab',
         onPressed: () async {
           await Get.toNamed(AppRoutes.addExpense, arguments: ctrl.cow);
           await ctrl.loadAll();
@@ -500,8 +506,9 @@ class _EmptyTab extends StatelessWidget {
 
 class _Fab extends StatelessWidget {
   final VoidCallback onPressed;
+  final String heroTag;
 
-  const _Fab({required this.onPressed});
+  const _Fab({required this.onPressed, required this.heroTag});
 
   @override
   Widget build(BuildContext context) {
@@ -510,6 +517,7 @@ class _Fab extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: FloatingActionButton(
+          heroTag: heroTag,
           onPressed: onPressed,
           child: const Icon(Icons.add),
         ),

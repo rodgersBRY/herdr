@@ -17,56 +17,83 @@ class AppScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<AppScaffoldController>(
       init: AppScaffoldController(),
-      builder: (ctrl) => Scaffold(
-        body: Column(
-          children: [
-            const _ConnectivityStrip(),
-            Expanded(
-              child: IndexedStack(
-                index: ctrl.currentIndex,
-                children: const [
-                  HomeView(),
-                  CowsView(),
-                  MilkEntryView(),
-                  SalesView(),
-                  DashboardView(),
+      builder:
+          (ctrl) => Scaffold(
+            body: Column(
+              children: [
+                SafeArea(
+                  bottom: false,
+                  child: const _ConnectivityStrip(),
+                ),
+                Expanded(
+                  child: IndexedStack(
+                    index: ctrl.currentIndex,
+                    children: const [
+                      HomeView(),
+                      CowsView(),
+                      MilkEntryView(),
+                      SalesView(),
+                      DashboardView(),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            bottomNavigationBar: Container(
+              margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x14000000),
+                    blurRadius: 20,
+                    offset: Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: BottomNavigationBar(
+                currentIndex: ctrl.currentIndex,
+                onTap: ctrl.changePage,
+                type: BottomNavigationBarType.fixed,
+                selectedItemColor: AppTheme.primary,
+                unselectedItemColor: AppTheme.textSecondary,
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                selectedLabelStyle: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+                items: const [
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.home_outlined),
+                    activeIcon: Icon(Icons.home),
+                    label: 'Home',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.pets_outlined),
+                    activeIcon: Icon(Icons.pets),
+                    label: 'Cows',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.water_drop_outlined),
+                    activeIcon: Icon(Icons.water_drop),
+                    label: 'Milk',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.sell_outlined),
+                    activeIcon: Icon(Icons.sell),
+                    label: 'Sales',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.query_stats_outlined),
+                    activeIcon: Icon(Icons.query_stats),
+                    label: 'Dashboard',
+                  ),
                 ],
               ),
             ),
-          ],
-        ),
-        bottomNavigationBar: Container(
-          margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x14000000),
-                blurRadius: 20,
-                offset: Offset(0, 8),
-              ),
-            ],
           ),
-          child: BottomNavigationBar(
-            currentIndex: ctrl.currentIndex,
-            onTap: ctrl.changePage,
-            type: BottomNavigationBarType.fixed,
-            selectedItemColor: AppTheme.primary,
-            unselectedItemColor: AppTheme.textSecondary,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            selectedLabelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-            items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home), label: 'Home'),
-              BottomNavigationBarItem(icon: Icon(Icons.pets_outlined), activeIcon: Icon(Icons.pets), label: 'Cows'),
-              BottomNavigationBarItem(icon: Icon(Icons.water_drop_outlined), activeIcon: Icon(Icons.water_drop), label: 'Milk'),
-              BottomNavigationBarItem(icon: Icon(Icons.sell_outlined), activeIcon: Icon(Icons.sell), label: 'Sales'),
-              BottomNavigationBarItem(icon: Icon(Icons.query_stats_outlined), activeIcon: Icon(Icons.query_stats), label: 'Dashboard'),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

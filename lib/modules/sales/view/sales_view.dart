@@ -23,6 +23,7 @@ class SalesView extends StatelessWidget {
           ],
         ),
         floatingActionButton: FloatingActionButton(
+          heroTag: 'sales_add_fab',
           onPressed: () async {
             await Get.toNamed(AppRoutes.addSale);
             await ctrl.loadSales();

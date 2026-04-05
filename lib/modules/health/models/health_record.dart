@@ -3,6 +3,27 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'health_record.g.dart';
 
+String? _stringFromDynamic(dynamic value) {
+  if (value == null) {
+    return null;
+  }
+  if (value is String) {
+    return value;
+  }
+  if (value is num || value is bool) {
+    return value.toString();
+  }
+  if (value is Map<String, dynamic>) {
+    for (final key in const ['id', 'value', 'name', 'description']) {
+      final nested = value[key];
+      if (nested != null) {
+        return _stringFromDynamic(nested);
+      }
+    }
+  }
+  return null;
+}
+
 @JsonSerializable(includeIfNull: false)
 class HealthRecord {
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -68,10 +89,22 @@ class HealthRecord {
     required String syncAction,
     String? lastError,
   }) =>
-      HealthRecord.fromJson(map).copyWith(
+      HealthRecord(
         localId: localId,
-        cowLocalId: cowLocalId,
+        serverId: _stringFromDynamic(map['id']),
         syncAction: syncAction,
+        cowLocalId: cowLocalId,
+        type: _stringFromDynamic(map['type']) ?? '',
+        description: _stringFromDynamic(map['description']) ?? '',
+        drugUsed: _stringFromDynamic(map['drugUsed'] ?? map['drug_used']),
+        recordDate:
+            _stringFromDynamic(map['recordDate'] ?? map['record_date']) ?? '',
+        nextDueDate:
+            _stringFromDynamic(map['nextDueDate'] ?? map['next_due_date']),
+        notes: _stringFromDynamic(map['notes']),
+        createdAt:
+            _stringFromDynamic(map['createdAt'] ?? map['created_at']) ??
+                DateTime.now().toIso8601String(),
         updatedAt: DateTime.now().toIso8601String(),
         lastError: lastError,
       );

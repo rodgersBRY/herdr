@@ -24,6 +24,7 @@ class CowsView extends StatelessWidget {
           ],
         ),
         floatingActionButton: FloatingActionButton(
+          heroTag: 'cows_add_fab',
           onPressed: () async {
             await Get.toNamed(AppRoutes.addCow);
             await ctrl.loadCows();
