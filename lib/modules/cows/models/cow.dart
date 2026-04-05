@@ -3,6 +3,27 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'cow.g.dart';
 
+String? _stringFromDynamic(dynamic value) {
+  if (value == null) {
+    return null;
+  }
+  if (value is String) {
+    return value;
+  }
+  if (value is num || value is bool) {
+    return value.toString();
+  }
+  if (value is Map<String, dynamic>) {
+    for (final key in const ['id', 'value', 'name']) {
+      final nested = value[key];
+      if (nested != null) {
+        return _stringFromDynamic(nested);
+      }
+    }
+  }
+  return null;
+}
+
 @JsonSerializable(includeIfNull: false)
 class Cow {
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -64,9 +85,19 @@ class Cow {
     required String syncAction,
     String? lastError,
   }) =>
-      Cow.fromJson(map).copyWith(
+      Cow(
         localId: localId,
+        serverId: _stringFromDynamic(map['id']),
         syncAction: syncAction,
+        tagNumber: _stringFromDynamic(map['tagNumber'] ?? map['tag_number']) ?? '',
+        breed: _stringFromDynamic(map['breed']) ?? '',
+        dateOfBirth:
+            _stringFromDynamic(map['dateOfBirth'] ?? map['date_of_birth']) ?? '',
+        source: _stringFromDynamic(map['source']) ?? AppConstants.sourceBought,
+        status: _stringFromDynamic(map['status']) ?? AppConstants.statusActive,
+        createdAt:
+            _stringFromDynamic(map['createdAt'] ?? map['created_at']) ??
+                DateTime.now().toIso8601String(),
         updatedAt: DateTime.now().toIso8601String(),
         lastError: lastError,
       );

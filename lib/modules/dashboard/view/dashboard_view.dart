@@ -242,7 +242,7 @@ class _GridSection extends StatelessWidget {
           crossAxisCount: children.length == 2 ? 2 : 3,
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
-          childAspectRatio: 1.1,
+          childAspectRatio: children.length == 2 ? 1.18 : 0.9,
           physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
           children: children,
@@ -280,17 +280,30 @@ class _MetricCard extends StatelessWidget {
             backgroundColor: color.withValues(alpha: 0.12),
             child: Icon(icon, color: color),
           ),
-          const Spacer(),
-          Text(
-            value,
-            style: TextStyle(
-              color: color,
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
+          const SizedBox(height: 18),
+          Expanded(
+            child: Align(
+              alignment: Alignment.bottomLeft,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  value,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
             ),
           ),
-          const SizedBox(height: 4),
-          Text(label, style: const TextStyle(color: AppTheme.textSecondary)),
+          Text(
+            label,
+            style: const TextStyle(color: AppTheme.textSecondary),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
         ],
       ),
     );

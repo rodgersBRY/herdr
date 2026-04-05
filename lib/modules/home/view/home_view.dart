@@ -15,7 +15,7 @@ class HomeView extends StatelessWidget {
       init: HomeController(),
       builder: (ctrl) => Scaffold(
         appBar: AppBar(
-          title: Obx(() => Text(ctrl.todayDisplay)),
+          title: Text(ctrl.todayDisplay),
           actions: [
             IconButton(
               onPressed: ctrl.loadAlerts,
