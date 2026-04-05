@@ -13,10 +13,27 @@ String _requiredString(dynamic value, {String fallback = ''}) {
     return value.toString();
   }
   if (value is Map<String, dynamic>) {
-    for (final key in const ['id', 'value', 'name', 'description']) {
+    for (final key in const [
+      'id',
+      'value',
+      'name',
+      'description',
+      'date',
+      'recordDate',
+      'record_date',
+      'formatted',
+      r'$date',
+    ]) {
       final nested = value[key];
       if (nested != null) {
         return _requiredString(nested, fallback: fallback);
+      }
+    }
+
+    for (final nested in value.values) {
+      final resolved = _requiredString(nested, fallback: fallback);
+      if (resolved.isNotEmpty) {
+        return resolved;
       }
     }
   }

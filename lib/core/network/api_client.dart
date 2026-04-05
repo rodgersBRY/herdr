@@ -42,7 +42,7 @@ class ApiClient extends GetxService {
 
     if (kDebugMode) {
       dio.interceptors.add(
-        LogInterceptor(requestBody: true, responseBody: false),
+        LogInterceptor(requestBody: true, responseBody: true),
       );
     }
 
