@@ -26,11 +26,35 @@ class MilkEntryView extends StatelessWidget {
                       )
                     : const Text(
                         'SAVE',
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(color: AppTheme.primary),
                       ),
               ),
             ),
           ],
+        ),
+        bottomNavigationBar: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: Obx(
+              () => ElevatedButton.icon(
+                onPressed: ctrl.isSaving.value ? null : ctrl.saveAll,
+                icon: ctrl.isSaving.value
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Icon(Icons.save_outlined),
+                label: Text(
+                  ctrl.isSaving.value ? 'Saving milk logs...' : 'Save Milk Logs',
+                ),
+              ),
+            ),
+          ),
         ),
         body: Obx(() {
           if (ctrl.isLoading.value) {
