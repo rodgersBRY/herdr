@@ -22,7 +22,7 @@ class AddCowView extends StatelessWidget {
           child: Column(
             children: [
               FormBuilderTextField(
-                name: 'tag_number',
+                name: 'tagNumber',
                 decoration: const InputDecoration(labelText: 'Tag Number'),
                 textCapitalization: TextCapitalization.characters,
                 validator: FormBuilderValidators.required(),
@@ -41,7 +41,7 @@ class AddCowView extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               FormBuilderDateTimePicker(
-                name: 'date_of_birth',
+                name: 'dateOfBirth',
                 inputType: InputType.date,
                 lastDate: DateTime.now(),
                 initialValue: DateTime.now().subtract(const Duration(days: 365)),

@@ -117,9 +117,9 @@ class Cow {
       };
 
   Map<String, dynamic> toCreatePayload() => {
-        'tag_number': tagNumber,
+        'tagNumber': tagNumber,
         'breed': breed,
-        'date_of_birth': dateOfBirth,
+        'dateOfBirth': dateOfBirth,
         'source': source,
       };
 

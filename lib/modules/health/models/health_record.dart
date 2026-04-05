@@ -128,18 +128,18 @@ class HealthRecord {
   Map<String, dynamic> toCreatePayload() => {
         'type': type,
         'description': description,
-        if (drugUsed != null && drugUsed!.isNotEmpty) 'drug_used': drugUsed,
-        'record_date': recordDate,
+        if (drugUsed != null && drugUsed!.isNotEmpty) 'drugUsed': drugUsed,
+        'recordDate': recordDate,
         if (nextDueDate != null && nextDueDate!.isNotEmpty)
-          'next_due_date': nextDueDate,
+          'nextDueDate': nextDueDate,
         if (notes != null && notes!.isNotEmpty) 'notes': notes,
       };
 
   Map<String, dynamic> toUpdatePayload() => {
         'type': type,
         'description': description,
-        'drug_used': drugUsed,
-        'next_due_date': nextDueDate,
+        'drugUsed': drugUsed,
+        'nextDueDate': nextDueDate,
         'notes': notes,
       };
 

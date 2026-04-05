@@ -145,7 +145,7 @@ class AddSaleView extends StatelessWidget {
           child: Column(
             children: [
               FormBuilderDateTimePicker(
-                name: 'sale_date',
+                name: 'saleDate',
                 inputType: InputType.date,
                 decoration: const InputDecoration(labelText: 'Sale date'),
                 initialValue: DateTime.now(),
@@ -154,7 +154,7 @@ class AddSaleView extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               FormBuilderTextField(
-                name: 'litres_sold',
+                name: 'litresSold',
                 decoration: const InputDecoration(
                   labelText: 'Litres sold',
                   suffixText: 'L',
@@ -169,7 +169,7 @@ class AddSaleView extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               FormBuilderTextField(
-                name: 'price_per_litre',
+                name: 'pricePerLitre',
                 decoration: const InputDecoration(
                   labelText: 'Price per litre',
                   prefixText: 'KES ',

@@ -100,7 +100,7 @@ class MilkLog {
       };
 
   Map<String, dynamic> toCreatePayload() => {
-        'log_date': logDate,
+        'logDate': logDate,
         'litres': litres,
         'period': period,
         if (notes != null && notes!.isNotEmpty) 'notes': notes,

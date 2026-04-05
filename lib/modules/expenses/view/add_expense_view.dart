@@ -66,7 +66,7 @@ class AddExpenseView extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               FormBuilderDateTimePicker(
-                name: 'expense_date',
+                name: 'expenseDate',
                 inputType: InputType.date,
                 initialValue: DateTime.now(),
                 decoration: const InputDecoration(labelText: 'Expense date'),
@@ -127,7 +127,7 @@ class _AddExpenseCtrl extends GetxController {
           category: values['category'] as String,
           amount: double.parse(values['amount'] as String),
           expenseDate:
-              DateFormat('yyyy-MM-dd').format(values['expense_date'] as DateTime),
+              DateFormat('yyyy-MM-dd').format(values['expenseDate'] as DateTime),
           notes: values['notes'] as String?,
           createdAt: now,
           updatedAt: now,

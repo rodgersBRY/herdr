@@ -100,16 +100,16 @@ class BreedingRecord {
       };
 
   Map<String, dynamic> toCreatePayload() => {
-        'event_type': eventType,
-        'event_date': eventDate,
+        'eventType': eventType,
+        'eventDate': eventDate,
         if (expectedCalvingDate != null && expectedCalvingDate!.isNotEmpty)
-          'expected_calving_date': expectedCalvingDate,
+          'expectedCalvingDate': expectedCalvingDate,
         if (notes != null && notes!.isNotEmpty) 'notes': notes,
         if (eventType == AppConstants.breedingCalving)
           'calf': {
-            'tag_number': calfTagNumber,
+            'tagNumber': calfTagNumber,
             'breed': calfBreed,
-            'date_of_birth': calfDateOfBirth ?? eventDate,
+            'dateOfBirth': calfDateOfBirth ?? eventDate,
           },
       };
 

@@ -23,10 +23,10 @@ class AddCowController extends GetxController {
     try {
       final now = DateTime.now().toIso8601String();
       final cow = Cow(
-        tagNumber: (values['tag_number'] as String).trim().toUpperCase(),
+        tagNumber: (values['tagNumber'] as String).trim().toUpperCase(),
         breed: values['breed'] as String,
         dateOfBirth:
-            DateFormat('yyyy-MM-dd').format(values['date_of_birth'] as DateTime),
+            DateFormat('yyyy-MM-dd').format(values['dateOfBirth'] as DateTime),
         source: values['source'] as String,
         status: values['status'] as String,
         createdAt: now,

@@ -53,12 +53,12 @@ class AddHealthRecordView extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               FormBuilderTextField(
-                name: 'drug_used',
+                name: 'drugUsed',
                 decoration: const InputDecoration(labelText: 'Drug used'),
               ),
               const SizedBox(height: 16),
               FormBuilderDateTimePicker(
-                name: 'record_date',
+                name: 'recordDate',
                 inputType: InputType.date,
                 initialValue: DateTime.now(),
                 lastDate: DateTime.now(),
@@ -67,7 +67,7 @@ class AddHealthRecordView extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               FormBuilderDateTimePicker(
-                name: 'next_due_date',
+                name: 'nextDueDate',
                 inputType: InputType.date,
                 decoration: const InputDecoration(labelText: 'Next due date'),
               ),
@@ -126,10 +126,10 @@ class _AddHealthCtrl extends GetxController {
           cowLocalId: cow.localId,
           type: values['type'] as String,
           description: values['description'] as String,
-          drugUsed: values['drug_used'] as String?,
-          recordDate: fmt.format(values['record_date'] as DateTime),
-          nextDueDate: values['next_due_date'] != null
-              ? fmt.format(values['next_due_date'] as DateTime)
+          drugUsed: values['drugUsed'] as String?,
+          recordDate: fmt.format(values['recordDate'] as DateTime),
+          nextDueDate: values['nextDueDate'] != null
+              ? fmt.format(values['nextDueDate'] as DateTime)
               : null,
           notes: values['notes'] as String?,
           createdAt: now,

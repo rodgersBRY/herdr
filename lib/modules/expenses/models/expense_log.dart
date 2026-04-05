@@ -95,7 +95,7 @@ class ExpenseLog {
   Map<String, dynamic> toCreatePayload() => {
         'category': category,
         'amount': amount,
-        'expense_date': expenseDate,
+        'expenseDate': expenseDate,
         if (notes != null && notes!.isNotEmpty) 'notes': notes,
       };
 

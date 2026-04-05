@@ -128,10 +128,10 @@ class MilkSale {
       };
 
   Map<String, dynamic> toCreatePayload() => {
-        'sale_date': saleDate,
-        'litres_sold': litresSold,
-        'price_per_litre': pricePerLitre,
-        'total_amount': totalAmount,
+        'saleDate': saleDate,
+        'litresSold': litresSold,
+        'pricePerLitre': pricePerLitre,
+        'totalAmount': totalAmount,
         if (buyer != null && buyer!.isNotEmpty) 'buyer': buyer,
         if (notes != null && notes!.isNotEmpty) 'notes': notes,
       };

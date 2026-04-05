@@ -46,13 +46,13 @@ class AddSaleController extends GetxController {
     isSaving.value = true;
 
     try {
-      final litres = double.parse(values['litres_sold'] as String);
-      final price = double.parse(values['price_per_litre'] as String);
+      final litres = double.parse(values['litresSold'] as String);
+      final price = double.parse(values['pricePerLitre'] as String);
       final now = DateTime.now().toIso8601String();
 
       final sale = MilkSale(
         saleDate:
-            DateFormat('yyyy-MM-dd').format(values['sale_date'] as DateTime),
+            DateFormat('yyyy-MM-dd').format(values['saleDate'] as DateTime),
         litresSold: litres,
         pricePerLitre: price,
         totalAmount: litres * price,

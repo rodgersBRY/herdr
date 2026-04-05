@@ -27,7 +27,7 @@ class AddBreedingRecordView extends StatelessWidget {
             () => Column(
               children: [
                 FormBuilderDropdown<String>(
-                  name: 'event_type',
+                  name: 'eventType',
                   initialValue: AppConstants.breedingService,
                   decoration: const InputDecoration(labelText: 'Event type'),
                   onChanged: (value) =>
@@ -54,7 +54,7 @@ class AddBreedingRecordView extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 FormBuilderDateTimePicker(
-                  name: 'event_date',
+                  name: 'eventDate',
                   inputType: InputType.date,
                   initialValue: DateTime.now(),
                   decoration: const InputDecoration(labelText: 'Event date'),
@@ -62,7 +62,7 @@ class AddBreedingRecordView extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 FormBuilderDateTimePicker(
-                  name: 'expected_calving_date',
+                  name: 'expectedCalvingDate',
                   inputType: InputType.date,
                   decoration:
                       const InputDecoration(labelText: 'Expected calving date'),
@@ -70,13 +70,13 @@ class AddBreedingRecordView extends StatelessWidget {
                 if (ctrl.eventType.value == AppConstants.breedingCalving) ...[
                   const SizedBox(height: 16),
                   FormBuilderTextField(
-                    name: 'calf_tag_number',
+                    name: 'calfTagNumber',
                     decoration: const InputDecoration(labelText: 'Calf tag number'),
                     validator: FormBuilderValidators.required(),
                   ),
                   const SizedBox(height: 16),
                   FormBuilderDropdown<String>(
-                    name: 'calf_breed',
+                    name: 'calfBreed',
                     decoration: const InputDecoration(labelText: 'Calf breed'),
                     items: AppConstants.breeds
                         .map(
@@ -144,15 +144,15 @@ class _AddBreedingCtrl extends GetxController {
       await _repository.insert(
         BreedingRecord(
           cowLocalId: cow.localId,
-          eventType: values['event_type'] as String,
-          eventDate: fmt.format(values['event_date'] as DateTime),
-          expectedCalvingDate: values['expected_calving_date'] != null
-              ? fmt.format(values['expected_calving_date'] as DateTime)
+          eventType: values['eventType'] as String,
+          eventDate: fmt.format(values['eventDate'] as DateTime),
+          expectedCalvingDate: values['expectedCalvingDate'] != null
+              ? fmt.format(values['expectedCalvingDate'] as DateTime)
               : null,
-          calfTagNumber: values['calf_tag_number'] as String?,
-          calfBreed: values['calf_breed'] as String?,
-          calfDateOfBirth: values['event_date'] != null
-              ? fmt.format(values['event_date'] as DateTime)
+          calfTagNumber: values['calfTagNumber'] as String?,
+          calfBreed: values['calfBreed'] as String?,
+          calfDateOfBirth: values['eventDate'] != null
+              ? fmt.format(values['eventDate'] as DateTime)
               : null,
           notes: values['notes'] as String?,
           createdAt: now,
