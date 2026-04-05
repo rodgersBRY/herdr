@@ -10,6 +10,27 @@ double _doubleFromJson(dynamic value) {
   return double.tryParse(value?.toString() ?? '') ?? 0;
 }
 
+String? _stringFromDynamic(dynamic value) {
+  if (value == null) {
+    return null;
+  }
+  if (value is String) {
+    return value;
+  }
+  if (value is num || value is bool) {
+    return value.toString();
+  }
+  if (value is Map<String, dynamic>) {
+    for (final key in const ['id', 'value', 'name']) {
+      final nested = value[key];
+      if (nested != null) {
+        return _stringFromDynamic(nested);
+      }
+    }
+  }
+  return null;
+}
+
 @JsonSerializable(includeIfNull: false)
 class MilkSale {
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -73,9 +94,20 @@ class MilkSale {
     required String syncAction,
     String? lastError,
   }) =>
-      MilkSale.fromJson(map).copyWith(
+      MilkSale(
         localId: localId,
+        serverId: _stringFromDynamic(map['id']),
         syncAction: syncAction,
+        saleDate: _stringFromDynamic(map['saleDate'] ?? map['sale_date']) ?? '',
+        litresSold: _doubleFromJson(map['litresSold'] ?? map['litres_sold']),
+        pricePerLitre:
+            _doubleFromJson(map['pricePerLitre'] ?? map['price_per_litre']),
+        totalAmount: _doubleFromJson(map['totalAmount'] ?? map['total_amount']),
+        buyer: _stringFromDynamic(map['buyer']),
+        notes: _stringFromDynamic(map['notes']),
+        createdAt:
+            _stringFromDynamic(map['createdAt'] ?? map['created_at']) ??
+                DateTime.now().toIso8601String(),
         updatedAt: DateTime.now().toIso8601String(),
         lastError: lastError,
       );

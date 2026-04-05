@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controller/milk_entry_controller.dart';
+
 import '../../../config/app_theme.dart';
+import '../controller/milk_entry_controller.dart';
 
 class MilkEntryView extends StatelessWidget {
   const MilkEntryView({super.key});
@@ -14,56 +15,115 @@ class MilkEntryView extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Milk Entry'),
           actions: [
-            Obx(() => TextButton(
-                  onPressed: ctrl.isSaving.value ? null : ctrl.saveAll,
-                  child: ctrl.isSaving.value
-                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : const Text('SAVE ALL', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                )),
+            Obx(
+              () => TextButton(
+                onPressed: ctrl.isSaving.value ? null : ctrl.saveAll,
+                child: ctrl.isSaving.value
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text(
+                        'SAVE',
+                        style: TextStyle(color: Colors.white),
+                      ),
+              ),
+            ),
           ],
         ),
         body: Obx(() {
-          if (ctrl.isLoading.value) return const Center(child: CircularProgressIndicator());
-          if (ctrl.cows.isEmpty) {
-            return const Center(child: Text('No cows registered yet', style: TextStyle(color: AppTheme.textSecondary)));
+          if (ctrl.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
           }
+
+          if (ctrl.cows.isEmpty) {
+            return const Center(child: Text('No active cows available.'));
+          }
+
           return Column(
             children: [
-              // Date + Total bar
               Container(
-                color: AppTheme.primary.withAlpha(20),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                margin: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Column(
                   children: [
-                    Text(ctrl.selectedDate.value,
-                        style: const TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
-                    Obx(() => Text('Total: ${ctrl.totalToday.toStringAsFixed(1)} L',
-                        style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primary))),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _HeaderTile(
+                            label: 'Date',
+                            value: ctrl.selectedDate.value,
+                            onTap: () async {
+                              final picked = await showDatePicker(
+                                context: context,
+                                initialDate: DateTime.parse(ctrl.selectedDate.value),
+                                firstDate: DateTime(2020),
+                                lastDate: DateTime.now(),
+                              );
+                              if (picked != null) {
+                                await ctrl.changeDate(picked);
+                              }
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: DropdownButtonFormField<String>(
+                            value: ctrl.selectedPeriod.value,
+                            items: const [
+                              DropdownMenuItem(
+                                value: 'morning',
+                                child: Text('Morning'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'evening',
+                                child: Text('Evening'),
+                              ),
+                            ],
+                            decoration: const InputDecoration(labelText: 'Period'),
+                            onChanged: (value) {
+                              if (value != null) {
+                                ctrl.selectedPeriod.value = value;
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Recorded today',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        Text(
+                          '${ctrl.totalForDay.toStringAsFixed(1)} L',
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                            color: AppTheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
-              // Header row
-              Container(
-                color: AppTheme.primary.withAlpha(10),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                child: const Row(
-                  children: [
-                    Expanded(flex: 3, child: Text('COW', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.textSecondary))),
-                    Expanded(flex: 2, child: Center(child: Text('MORNING (L)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.textSecondary)))),
-                    SizedBox(width: 8),
-                    Expanded(flex: 2, child: Center(child: Text('EVENING (L)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.textSecondary)))),
-                  ],
-                ),
-              ),
-              // Cow list
               Expanded(
                 child: ListView.separated(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                   itemCount: ctrl.cows.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1),
-                  itemBuilder: (_, i) {
-                    final cow = ctrl.cows[i];
-                    return _MilkRow(cow: cow, ctrl: ctrl);
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  itemBuilder: (_, index) {
+                    final cow = ctrl.cows[index];
+                    return _MilkCard(cow: cow, ctrl: ctrl);
                   },
                 ),
               ),
@@ -75,42 +135,85 @@ class MilkEntryView extends StatelessWidget {
   }
 }
 
-class _MilkRow extends StatelessWidget {
-  final dynamic cow;
-  final MilkEntryController ctrl;
-  const _MilkRow({required this.cow, required this.ctrl});
+class _HeaderTile extends StatelessWidget {
+  final String label;
+  final String value;
+  final VoidCallback onTap;
+
+  const _HeaderTile({
+    required this.label,
+    required this.value,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(18),
+      child: Ink(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AppTheme.primary.withValues(alpha: 0.07),
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label, style: const TextStyle(color: AppTheme.textSecondary)),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MilkCard extends StatelessWidget {
+  final dynamic cow;
+  final MilkEntryController ctrl;
+
+  const _MilkCard({required this.cow, required this.ctrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+      ),
       child: Row(
         children: [
           Expanded(
-            flex: 3,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(cow.tag, style: const TextStyle(fontWeight: FontWeight.w600)),
-                if (cow.name != null && cow.name!.isNotEmpty)
-                  Text(cow.name!, style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
+                Text(
+                  cow.tagNumber,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  cow.breed,
+                  style: const TextStyle(color: AppTheme.textSecondary),
+                ),
               ],
             ),
           ),
-          Expanded(
-            flex: 2,
-            child: Obx(() => _LitresInput(
-                  initialValue: ctrl.morningInputs[cow.localId] ?? 0,
-                  onChanged: (v) => ctrl.setMorning(cow.localId, v),
-                )),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            flex: 2,
-            child: Obx(() => _LitresInput(
-                  initialValue: ctrl.eveningInputs[cow.localId] ?? 0,
-                  onChanged: (v) => ctrl.setEvening(cow.localId, v),
-                )),
+          SizedBox(
+            width: 110,
+            child: _LitresField(
+              initialValue: ctrl.litresInputs[cow.localId] ?? 0,
+              onChanged: (value) => ctrl.setLitres(cow.localId, value),
+            ),
           ),
         ],
       ),
@@ -118,52 +221,54 @@ class _MilkRow extends StatelessWidget {
   }
 }
 
-class _LitresInput extends StatefulWidget {
+class _LitresField extends StatefulWidget {
   final double initialValue;
   final ValueChanged<String> onChanged;
-  const _LitresInput({required this.initialValue, required this.onChanged});
+
+  const _LitresField({
+    required this.initialValue,
+    required this.onChanged,
+  });
 
   @override
-  State<_LitresInput> createState() => _LitresInputState();
+  State<_LitresField> createState() => _LitresFieldState();
 }
 
-class _LitresInputState extends State<_LitresInput> {
-  late TextEditingController _ctrl;
+class _LitresFieldState extends State<_LitresField> {
+  late final TextEditingController _controller;
 
   @override
   void initState() {
     super.initState();
-    final v = widget.initialValue == 0 ? '' : widget.initialValue.toString();
-    _ctrl = TextEditingController(text: v);
+    _controller = TextEditingController(
+      text: widget.initialValue == 0 ? '' : widget.initialValue.toString(),
+    );
   }
 
   @override
-  void didUpdateWidget(_LitresInput old) {
-    super.didUpdateWidget(old);
-    if (old.initialValue != widget.initialValue && !_ctrl.text.isNotEmpty) {
-      final v = widget.initialValue == 0 ? '' : widget.initialValue.toString();
-      _ctrl.text = v;
+  void didUpdateWidget(covariant _LitresField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialValue != widget.initialValue) {
+      _controller.text =
+          widget.initialValue == 0 ? '' : widget.initialValue.toString();
     }
   }
 
   @override
   void dispose() {
-    _ctrl.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return TextField(
-      controller: _ctrl,
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      controller: _controller,
       textAlign: TextAlign.center,
-      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-      decoration: InputDecoration(
-        hintText: '0',
-        hintStyle: TextStyle(color: Colors.grey[400], fontSize: 18),
-        isDense: true,
-        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      decoration: const InputDecoration(
+        labelText: 'Litres',
+        suffixText: 'L',
       ),
       onChanged: widget.onChanged,
     );

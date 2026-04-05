@@ -1,51 +1,56 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import '../../cows/repository/cow_repository.dart';
+
+import '../../../core/utils/constants.dart';
 import '../../cows/models/cow.dart';
-import '../repository/milk_repository.dart';
+import '../../cows/repository/cow_repository.dart';
 import '../models/milk_log.dart';
+import '../repository/milk_repository.dart';
 
 class MilkEntryController extends GetxController {
-  final MilkRepository _milkRepo = MilkRepository();
-  final CowRepository _cowRepo = CowRepository();
+  final MilkRepository _milkRepository = MilkRepository();
+  final CowRepository _cowRepository = CowRepository();
 
   final RxBool isLoading = false.obs;
+  final RxBool isSaving = false.obs;
   final RxList<Cow> cows = <Cow>[].obs;
   final RxMap<String, MilkLog> logsByCow = <String, MilkLog>{}.obs;
-  final RxMap<String, double> morningInputs = <String, double>{}.obs;
-  final RxMap<String, double> eveningInputs = <String, double>{}.obs;
+  final RxMap<String, double> litresInputs = <String, double>{}.obs;
   final RxString selectedDate = ''.obs;
-  final RxBool isSaving = false.obs;
-
-  String get today => DateFormat('yyyy-MM-dd').format(DateTime.now());
+  final RxString selectedPeriod = AppConstants.milkMorning.obs;
 
   @override
   void onInit() {
     super.onInit();
-    selectedDate.value = today;
+    selectedDate.value = DateFormat('yyyy-MM-dd').format(DateTime.now());
     loadData();
   }
 
   Future<void> loadData() async {
     isLoading.value = true;
     try {
-      cows.value = await _cowRepo.getAll();
-      final logs = await _milkRepo.getForDate(selectedDate.value);
-      logsByCow.value = {for (final l in logs) l.cowLocalId: l};
-      morningInputs.value = {for (final l in logs) l.cowLocalId: l.morningLitres};
-      eveningInputs.value = {for (final l in logs) l.cowLocalId: l.eveningLitres};
+      cows.assignAll(
+        (await _cowRepository.getAll())
+            .where((cow) => cow.status == AppConstants.statusActive)
+            .toList(),
+      );
+      final logs = await _milkRepository.getForDate(selectedDate.value);
+      logsByCow.assignAll({for (final log in logs) log.cowLocalId: log});
+      litresInputs.assignAll({
+        for (final log in logs) log.cowLocalId: log.litres,
+      });
     } finally {
       isLoading.value = false;
     }
   }
 
-  void setMorning(String cowId, String val) {
-    morningInputs[cowId] = double.tryParse(val) ?? 0;
+  Future<void> changeDate(DateTime date) async {
+    selectedDate.value = DateFormat('yyyy-MM-dd').format(date);
+    await loadData();
   }
 
-  void setEvening(String cowId, String val) {
-    eveningInputs[cowId] = double.tryParse(val) ?? 0;
+  void setLitres(String cowId, String value) {
+    litresInputs[cowId] = double.tryParse(value) ?? 0;
   }
 
   Future<void> saveAll() async {
@@ -53,33 +58,38 @@ class MilkEntryController extends GetxController {
     try {
       final now = DateTime.now().toIso8601String();
       for (final cow in cows) {
-        final morning = morningInputs[cow.localId] ?? 0;
-        final evening = eveningInputs[cow.localId] ?? 0;
-        if (morning == 0 && evening == 0) continue;
-        final log = MilkLog(
-          localId: '',
-          cowLocalId: cow.localId,
-          logDate: selectedDate.value,
-          morningLitres: morning,
-          eveningLitres: evening,
-          createdAt: now,
+        final litres = litresInputs[cow.localId] ?? 0;
+        if (litres <= 0) {
+          continue;
+        }
+
+        await _milkRepository.upsert(
+          MilkLog(
+            cowLocalId: cow.localId,
+            logDate: selectedDate.value,
+            litres: litres,
+            period: selectedPeriod.value,
+            createdAt: now,
+            updatedAt: now,
+          ),
         );
-        await _milkRepo.upsert(log);
       }
+
       await loadData();
-      Get.snackbar('Saved', 'Milk logs saved',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: const Color(0xFF2E7D32),
-          colorText: const Color(0xFFFFFFFF));
+      Get.snackbar(
+        'Milk saved',
+        'Entries for ${selectedDate.value} were saved.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } finally {
       isSaving.value = false;
     }
   }
 
-  double get totalToday {
+  double get totalForDay {
     double total = 0;
-    for (final cow in cows) {
-      total += (morningInputs[cow.localId] ?? 0) + (eveningInputs[cow.localId] ?? 0);
+    for (final value in litresInputs.values) {
+      total += value;
     }
     return total;
   }

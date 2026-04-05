@@ -3,11 +3,12 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import '../../../core/utils/constants.dart';
+
 import '../../../config/app_theme.dart';
+import '../../../core/utils/constants.dart';
 import '../../cows/models/cow.dart';
-import '../../breeding/repository/breeding_repository.dart';
-import '../../breeding/models/breeding_record.dart';
+import '../models/breeding_record.dart';
+import '../repository/breeding_repository.dart';
 
 class AddBreedingRecordView extends StatelessWidget {
   const AddBreedingRecordView({super.key});
@@ -15,107 +16,101 @@ class AddBreedingRecordView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ctrl = Get.put(_AddBreedingCtrl());
-    
+
     return Scaffold(
-      appBar: AppBar(title: Text('Breeding — ${ctrl.cow.tag}')),
+      appBar: AppBar(title: Text('Breeding • ${ctrl.cow.tagNumber}')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: FormBuilder(
           key: ctrl.formKey,
-          child: Obx(() => Column(
-                children: [
-                  FormBuilderDropdown<String>(
-                    name: 'record_type',
-                    decoration: const InputDecoration(labelText: 'Type *'),
-                    initialValue: AppConstants.breedingService,
-                    onChanged: (v) => ctrl.recordType.value = v ?? '',
-                    items: const [
-                      DropdownMenuItem(value: AppConstants.breedingHeat, child: Text('Heat')),
-                      DropdownMenuItem(value: AppConstants.breedingService, child: Text('Service / AI')),
-                      DropdownMenuItem(value: AppConstants.breedingPregnancyCheck, child: Text('Pregnancy Check')),
-                      DropdownMenuItem(value: AppConstants.breedingCalving, child: Text('Calving')),
-                    ],
-                    validator: FormBuilderValidators.required(),
-                  ),
-                  const SizedBox(height: 12),
-                  FormBuilderDateTimePicker(
-                    name: 'service_date',
-                    inputType: InputType.date,
-                    decoration: const InputDecoration(labelText: 'Date *'),
-                    initialValue: DateTime.now(),
-                    validator: FormBuilderValidators.required(),
-                  ),
-                  if (ctrl.recordType.value == AppConstants.breedingService) ...[
-                    const SizedBox(height: 12),
-                    FormBuilderTextField(
-                      name: 'sire_name',
-                      decoration: const InputDecoration(labelText: 'Sire / Bull Name'),
+          child: Obx(
+            () => Column(
+              children: [
+                FormBuilderDropdown<String>(
+                  name: 'event_type',
+                  initialValue: AppConstants.breedingService,
+                  decoration: const InputDecoration(labelText: 'Event type'),
+                  onChanged: (value) =>
+                      ctrl.eventType.value = value ?? AppConstants.breedingService,
+                  items: const [
+                    DropdownMenuItem(
+                      value: AppConstants.breedingHeat,
+                      child: Text('Heat'),
                     ),
-                    const SizedBox(height: 12),
-                    FormBuilderDropdown<String>(
-                      name: 'sire_breed',
-                      decoration: const InputDecoration(labelText: 'Sire Breed'),
-                      items: AppConstants.breeds.map((b) => DropdownMenuItem(value: b, child: Text(b))).toList(),
+                    DropdownMenuItem(
+                      value: AppConstants.breedingService,
+                      child: Text('Service'),
                     ),
-                    const SizedBox(height: 12),
-                    FormBuilderDateTimePicker(
-                      name: 'pregnancy_check_date',
-                      inputType: InputType.date,
-                      decoration: const InputDecoration(labelText: 'Pregnancy Check Date'),
-                      firstDate: DateTime.now(),
+                    DropdownMenuItem(
+                      value: AppConstants.breedingPregnancyCheck,
+                      child: Text('Pregnancy check'),
                     ),
-                    const SizedBox(height: 12),
-                    FormBuilderDateTimePicker(
-                      name: 'expected_calving_date',
-                      inputType: InputType.date,
-                      decoration: const InputDecoration(labelText: 'Expected Calving Date'),
-                      firstDate: DateTime.now(),
+                    DropdownMenuItem(
+                      value: AppConstants.breedingCalving,
+                      child: Text('Calving'),
                     ),
                   ],
-                  if (ctrl.recordType.value == AppConstants.breedingPregnancyCheck) ...[
-                    const SizedBox(height: 12),
-                    FormBuilderDropdown<String>(
-                      name: 'pregnancy_result',
-                      decoration: const InputDecoration(labelText: 'Result *'),
-                      items: const [
-                        DropdownMenuItem(value: AppConstants.pregnantYes, child: Text('Pregnant')),
-                        DropdownMenuItem(value: AppConstants.pregnantNo, child: Text('Open / Not Pregnant')),
-                        DropdownMenuItem(value: AppConstants.pregnantUncertain, child: Text('Uncertain')),
-                      ],
-                    ),
-                  ],
-                  if (ctrl.recordType.value == AppConstants.breedingCalving) ...[
-                    const SizedBox(height: 12),
-                    FormBuilderDropdown<String>(
-                      name: 'calf_gender',
-                      decoration: const InputDecoration(labelText: 'Calf Gender'),
-                      items: const [
-                        DropdownMenuItem(value: AppConstants.genderFemale, child: Text('Female')),
-                        DropdownMenuItem(value: AppConstants.genderMale, child: Text('Male')),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    FormBuilderTextField(
-                      name: 'calf_tag',
-                      decoration: const InputDecoration(labelText: 'Calf Tag'),
-                      textCapitalization: TextCapitalization.characters,
-                    ),
-                  ],
-                  const SizedBox(height: 12),
+                  validator: FormBuilderValidators.required(),
+                ),
+                const SizedBox(height: 16),
+                FormBuilderDateTimePicker(
+                  name: 'event_date',
+                  inputType: InputType.date,
+                  initialValue: DateTime.now(),
+                  decoration: const InputDecoration(labelText: 'Event date'),
+                  validator: FormBuilderValidators.required(),
+                ),
+                const SizedBox(height: 16),
+                FormBuilderDateTimePicker(
+                  name: 'expected_calving_date',
+                  inputType: InputType.date,
+                  decoration:
+                      const InputDecoration(labelText: 'Expected calving date'),
+                ),
+                if (ctrl.eventType.value == AppConstants.breedingCalving) ...[
+                  const SizedBox(height: 16),
                   FormBuilderTextField(
-                    name: 'notes',
-                    decoration: const InputDecoration(labelText: 'Notes'),
-                    maxLines: 2,
+                    name: 'calf_tag_number',
+                    decoration: const InputDecoration(labelText: 'Calf tag number'),
+                    validator: FormBuilderValidators.required(),
                   ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: ctrl.isSaving.value ? null : ctrl.save,
-                    child: ctrl.isSaving.value
-                        ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                        : const Text('Save Record'),
+                  const SizedBox(height: 16),
+                  FormBuilderDropdown<String>(
+                    name: 'calf_breed',
+                    decoration: const InputDecoration(labelText: 'Calf breed'),
+                    items: AppConstants.breeds
+                        .map(
+                          (breed) => DropdownMenuItem(
+                            value: breed,
+                            child: Text(breed),
+                          ),
+                        )
+                        .toList(),
+                    validator: FormBuilderValidators.required(),
                   ),
                 ],
-              )),
+                const SizedBox(height: 16),
+                FormBuilderTextField(
+                  name: 'notes',
+                  decoration: const InputDecoration(labelText: 'Notes'),
+                  maxLines: 3,
+                ),
+                const SizedBox(height: 28),
+                Obx(
+                  () => ElevatedButton(
+                    onPressed: ctrl.isSaving.value ? null : ctrl.save,
+                    child: ctrl.isSaving.value
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('Save Record'),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -123,10 +118,10 @@ class AddBreedingRecordView extends StatelessWidget {
 }
 
 class _AddBreedingCtrl extends GetxController {
-  final BreedingRepository _repo = BreedingRepository();
+  final BreedingRepository _repository = BreedingRepository();
   final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
   final RxBool isSaving = false.obs;
-  final RxString recordType = AppConstants.breedingService.obs;
+  final RxString eventType = AppConstants.breedingService.obs;
   late Cow cow;
 
   @override
@@ -136,33 +131,43 @@ class _AddBreedingCtrl extends GetxController {
   }
 
   Future<void> save() async {
-    if (!formKey.currentState!.saveAndValidate()) return;
-    final v = formKey.currentState!.value;
+    if (!formKey.currentState!.saveAndValidate()) {
+      return;
+    }
+
+    final values = formKey.currentState!.value;
+    final fmt = DateFormat('yyyy-MM-dd');
     isSaving.value = true;
+
     try {
       final now = DateTime.now().toIso8601String();
-      final fmt = DateFormat('yyyy-MM-dd');
-      String? fmtDate(String key) => v[key] != null ? fmt.format(v[key] as DateTime) : null;
-
-      final record = BreedingRecord(
-        localId: '',
-        cowLocalId: cow.localId,
-        recordType: v['record_type'] as String,
-        serviceDate: fmtDate('service_date'),
-        sireName: v['sire_name'] as String?,
-        sireBreed: v['sire_breed'] as String?,
-        pregnancyCheckDate: fmtDate('pregnancy_check_date'),
-        pregnancyResult: v['pregnancy_result'] as String?,
-        expectedCalvingDate: fmtDate('expected_calving_date'),
-        calfGender: v['calf_gender'] as String?,
-        calfTag: v['calf_tag'] as String?,
-        notes: v['notes'] as String?,
-        createdAt: now,
+      await _repository.insert(
+        BreedingRecord(
+          cowLocalId: cow.localId,
+          eventType: values['event_type'] as String,
+          eventDate: fmt.format(values['event_date'] as DateTime),
+          expectedCalvingDate: values['expected_calving_date'] != null
+              ? fmt.format(values['expected_calving_date'] as DateTime)
+              : null,
+          calfTagNumber: values['calf_tag_number'] as String?,
+          calfBreed: values['calf_breed'] as String?,
+          calfDateOfBirth: values['event_date'] != null
+              ? fmt.format(values['event_date'] as DateTime)
+              : null,
+          notes: values['notes'] as String?,
+          createdAt: now,
+          updatedAt: now,
+        ),
       );
-      await _repo.insert(record);
+
       Get.back(result: true);
-      Get.snackbar('Saved', 'Breeding record added', snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: AppTheme.primary, colorText: Colors.white);
+      Get.snackbar(
+        'Breeding record saved',
+        'The record has been saved.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppTheme.primary,
+        colorText: Colors.white,
+      );
     } finally {
       isSaving.value = false;
     }

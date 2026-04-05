@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:intl/intl.dart';
-import '../controller/edit_cow_controller.dart';
+import 'package:get/get.dart';
+
+import '../../../core/utils/app_formatters.dart';
 import '../../../core/utils/constants.dart';
+import '../controller/edit_cow_controller.dart';
 
 class EditCowView extends StatelessWidget {
   const EditCowView({super.key});
@@ -12,98 +13,106 @@ class EditCowView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ctrl = Get.put(EditCowController());
+    final cow = ctrl.cow;
+
     return Scaffold(
-      appBar: AppBar(title: Text('Edit — ${ctrl.cow.tag}')),
+      appBar: AppBar(title: Text('Edit ${cow.tagNumber}')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: FormBuilder(
           key: ctrl.formKey,
           initialValue: {
-            'tag': ctrl.cow.tag,
-            'name': ctrl.cow.name ?? '',
-            'gender': ctrl.cow.gender,
-            'breed': ctrl.cow.breed,
-            'birth_date': ctrl.cow.birthDate != null
-                ? DateFormat('yyyy-MM-dd').parse(ctrl.cow.birthDate!)
-                : null,
-            'weight': ctrl.cow.weight?.toString() ?? '',
-            'status': ctrl.cow.status,
-            'notes': ctrl.cow.notes ?? '',
+            'breed': cow.breed,
+            'status': cow.status,
           },
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              FormBuilderTextField(
-                name: 'tag',
-                decoration: const InputDecoration(labelText: 'Tag / ID *'),
-                textCapitalization: TextCapitalization.characters,
-                validator: FormBuilderValidators.required(),
+              _StaticField(label: 'Tag Number', value: cow.tagNumber),
+              _StaticField(
+                label: 'Date of Birth',
+                value: AppFormatters.prettyDate(cow.dateOfBirth),
               ),
-              const SizedBox(height: 12),
-              FormBuilderTextField(
-                name: 'name',
-                decoration: const InputDecoration(labelText: 'Name (optional)'),
-                textCapitalization: TextCapitalization.words,
-              ),
-              const SizedBox(height: 12),
-              FormBuilderDropdown<String>(
-                name: 'gender',
-                decoration: const InputDecoration(labelText: 'Gender *'),
-                items: const [
-                  DropdownMenuItem(value: AppConstants.genderFemale, child: Text('Female')),
-                  DropdownMenuItem(value: AppConstants.genderMale, child: Text('Male')),
-                ],
-                validator: FormBuilderValidators.required(),
-              ),
-              const SizedBox(height: 12),
+              _StaticField(label: 'Source', value: cow.source),
+              const SizedBox(height: 20),
               FormBuilderDropdown<String>(
                 name: 'breed',
                 decoration: const InputDecoration(labelText: 'Breed'),
                 items: AppConstants.breeds
-                    .map((b) => DropdownMenuItem(value: b, child: Text(b)))
+                    .map((breed) => DropdownMenuItem(
+                          value: breed,
+                          child: Text(breed),
+                        ))
                     .toList(),
+                validator: FormBuilderValidators.required(),
               ),
-              const SizedBox(height: 12),
-              FormBuilderDateTimePicker(
-                name: 'birth_date',
-                inputType: InputType.date,
-                decoration: const InputDecoration(labelText: 'Birth Date'),
-                lastDate: DateTime.now(),
-              ),
-              const SizedBox(height: 12),
-              FormBuilderTextField(
-                name: 'weight',
-                decoration: const InputDecoration(labelText: 'Weight (kg)', suffixText: 'kg'),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                validator: FormBuilderValidators.numeric(checkNullOrEmpty: false),
-              ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               FormBuilderDropdown<String>(
                 name: 'status',
                 decoration: const InputDecoration(labelText: 'Status'),
                 items: const [
-                  DropdownMenuItem(value: AppConstants.statusActive, child: Text('Active')),
-                  DropdownMenuItem(value: AppConstants.statusDry, child: Text('Dry')),
-                  DropdownMenuItem(value: AppConstants.statusPregnant, child: Text('Pregnant')),
-                  DropdownMenuItem(value: AppConstants.statusSold, child: Text('Sold')),
-                  DropdownMenuItem(value: AppConstants.statusDeceased, child: Text('Deceased')),
+                  DropdownMenuItem(
+                    value: AppConstants.statusActive,
+                    child: Text('Active'),
+                  ),
+                  DropdownMenuItem(
+                    value: AppConstants.statusSold,
+                    child: Text('Sold'),
+                  ),
+                  DropdownMenuItem(
+                    value: AppConstants.statusDead,
+                    child: Text('Dead'),
+                  ),
                 ],
+                validator: FormBuilderValidators.required(),
               ),
-              const SizedBox(height: 12),
-              FormBuilderTextField(
-                name: 'notes',
-                decoration: const InputDecoration(labelText: 'Notes'),
-                maxLines: 3,
+              const SizedBox(height: 28),
+              Obx(
+                () => ElevatedButton(
+                  onPressed: ctrl.isSaving.value ? null : ctrl.save,
+                  child: ctrl.isSaving.value
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('Update Cow'),
+                ),
               ),
-              const SizedBox(height: 24),
-              Obx(() => ElevatedButton(
-                    onPressed: ctrl.isSaving.value ? null : ctrl.save,
-                    child: ctrl.isSaving.value
-                        ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                        : const Text('Update Cow'),
-                  )),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _StaticField extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _StaticField({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: Theme.of(context)
+                .textTheme
+                .labelMedium
+                ?.copyWith(color: Colors.black54),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+        ],
       ),
     );
   }

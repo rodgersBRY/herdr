@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controller/home_controller.dart';
+
 import '../../../config/app_theme.dart';
+import '../../../core/network/network_status_service.dart';
+import '../../../core/utils/app_formatters.dart';
+import '../controller/home_controller.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
@@ -15,8 +18,8 @@ class HomeView extends StatelessWidget {
           title: Obx(() => Text(ctrl.todayDisplay)),
           actions: [
             IconButton(
-              icon: const Icon(Icons.refresh),
               onPressed: ctrl.loadAlerts,
+              icon: const Icon(Icons.refresh),
             ),
           ],
         ),
@@ -24,69 +27,102 @@ class HomeView extends StatelessWidget {
           if (ctrl.isLoading.value) {
             return const Center(child: CircularProgressIndicator());
           }
+
+          final alerts = ctrl.alerts.value;
+          final hasAnyAlerts = alerts.healthDue.isNotEmpty ||
+              alerts.calvingDue.isNotEmpty ||
+              alerts.noMilkToday.isNotEmpty ||
+              alerts.recentlyTreated.isNotEmpty;
+
           return RefreshIndicator(
             onRefresh: ctrl.loadAlerts,
             child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 8),
+              padding: const EdgeInsets.all(16),
               children: [
-                _MilkTodayCard(litres: ctrl.todayMilk.value),
-                if (ctrl.missingMilkLog.isNotEmpty)
+                _HeroCard(todayMilk: ctrl.todayMilk.value),
+                const SizedBox(height: 16),
+                if (alerts.noMilkToday.isNotEmpty)
                   _AlertSection(
-                    title: 'Missing Milk Log',
-                    icon: Icons.water_drop,
+                    title: 'Missing milk logs',
                     color: Colors.blue,
-                    items: ctrl.missingMilkLog
-                        .map((c) => _AlertItem(
-                              title: c.tag,
-                              subtitle: c.name ?? '',
-                              icon: Icons.pets,
-                            ))
+                    icon: Icons.water_drop,
+                    children: alerts.noMilkToday
+                        .map(
+                          (item) => _AlertTile(
+                            title: item.tagNumber,
+                            subtitle: item.breed,
+                          ),
+                        )
                         .toList(),
                   ),
-                if (ctrl.calvingAlerts.isNotEmpty)
+                if (alerts.healthDue.isNotEmpty)
                   _AlertSection(
-                    title: 'Due for Calving',
-                    icon: Icons.child_care,
-                    color: Colors.orange,
-                    items: ctrl.calvingAlerts
-                        .map((a) => _AlertItem(
-                              title: a['tag'] as String,
-                              subtitle: 'Expected: ${a['expected_calving_date'] ?? ''}',
-                              icon: Icons.child_care,
-                            ))
-                        .toList(),
-                  ),
-                if (ctrl.pregnancyAlerts.isNotEmpty)
-                  _AlertSection(
-                    title: 'Pregnancy Check Due',
-                    icon: Icons.pregnant_woman,
-                    color: Colors.purple,
-                    items: ctrl.pregnancyAlerts
-                        .map((a) => _AlertItem(
-                              title: a['tag'] as String,
-                              subtitle: 'Due: ${a['pregnancy_check_date'] ?? ''}',
-                              icon: Icons.pregnant_woman,
-                            ))
-                        .toList(),
-                  ),
-                if (ctrl.healthAlerts.isNotEmpty)
-                  _AlertSection(
-                    title: 'Health Due',
-                    icon: Icons.medical_services,
+                    title: 'Health follow-ups',
                     color: Colors.red,
-                    items: ctrl.healthAlerts
-                        .map((a) => _AlertItem(
-                              title: a['tag'] as String,
-                              subtitle: '${a['record_type']}: ${a['description']}',
-                              icon: Icons.medical_services,
-                            ))
+                    icon: Icons.medical_services,
+                    children: alerts.healthDue
+                        .map(
+                          (item) => _AlertTile(
+                            title: item.tagNumber,
+                            subtitle:
+                                '${item.description} • ${AppFormatters.prettyDate(item.nextDueDate)}',
+                          ),
+                        )
                         .toList(),
                   ),
-                if (ctrl.missingMilkLog.isEmpty &&
-                    ctrl.calvingAlerts.isEmpty &&
-                    ctrl.pregnancyAlerts.isEmpty &&
-                    ctrl.healthAlerts.isEmpty)
-                  const _AllClearCard(),
+                if (alerts.calvingDue.isNotEmpty)
+                  _AlertSection(
+                    title: 'Calving due',
+                    color: Colors.orange,
+                    icon: Icons.event_available,
+                    children: alerts.calvingDue
+                        .map(
+                          (item) => _AlertTile(
+                            title: item.tagNumber,
+                            subtitle:
+                                'Expected ${AppFormatters.prettyDate(item.expectedCalvingDate)}',
+                          ),
+                        )
+                        .toList(),
+                  ),
+                if (alerts.recentlyTreated.isNotEmpty)
+                  _AlertSection(
+                    title: 'Recently treated',
+                    color: Colors.teal,
+                    icon: Icons.healing,
+                    children: alerts.recentlyTreated
+                        .map(
+                          (item) => _AlertTile(
+                            title: item.tagNumber,
+                            subtitle:
+                                '${item.description} • ${AppFormatters.prettyDate(item.recordDate)}',
+                          ),
+                        )
+                        .toList(),
+                  ),
+                if (!hasAnyAlerts)
+                  Container(
+                    padding: const EdgeInsets.all(28),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.check_circle_outline,
+                          size: 56,
+                          color: AppTheme.primary.withValues(alpha: 0.55),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Everything looks good today.',
+                          style: Theme.of(context).textTheme.titleMedium,
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
               ],
             ),
           );
@@ -96,33 +132,64 @@ class HomeView extends StatelessWidget {
   }
 }
 
-class _MilkTodayCard extends StatelessWidget {
-  final double litres;
-  const _MilkTodayCard({required this.litres});
+class _HeroCard extends StatelessWidget {
+  final double todayMilk;
+
+  const _HeroCard({required this.todayMilk});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      color: AppTheme.primary,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Row(
-          children: [
-            const Icon(Icons.water_drop, color: Colors.white, size: 40),
-            const SizedBox(width: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Today\'s Milk', style: TextStyle(color: Colors.white70, fontSize: 14)),
-                Text(
-                  '${litres.toStringAsFixed(1)} L',
-                  style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-          ],
+    final network = Get.find<NetworkStatusService>();
+
+    return Container(
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF123B2F), Color(0xFF2E7D32)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
+        borderRadius: BorderRadius.circular(28),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Obx(
+            () => Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Text(
+                network.statusLabel,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 18),
+          const Text(
+            'Today\'s milk',
+            style: TextStyle(color: Colors.white70),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            '${todayMilk.toStringAsFixed(1)} L',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 34,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            'Alerts below stay live online and still fall back to local farm data when you are offline.',
+            style: TextStyle(color: Colors.white70),
+          ),
+        ],
       ),
     );
   }
@@ -130,76 +197,85 @@ class _MilkTodayCard extends StatelessWidget {
 
 class _AlertSection extends StatelessWidget {
   final String title;
-  final IconData icon;
   final Color color;
-  final List<Widget> items;
-
-  const _AlertSection({required this.title, required this.icon, required this.color, required this.items});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-          child: Row(
-            children: [
-              Icon(icon, color: color, size: 18),
-              const SizedBox(width: 6),
-              Text(title,
-                  style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 13)),
-              const SizedBox(width: 6),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(10)),
-                child: Text('${items.length}', style: const TextStyle(color: Colors.white, fontSize: 11)),
-              ),
-            ],
-          ),
-        ),
-        ...items,
-      ],
-    );
-  }
-}
-
-class _AlertItem extends StatelessWidget {
-  final String title;
-  final String subtitle;
   final IconData icon;
+  final List<Widget> children;
 
-  const _AlertItem({required this.title, required this.subtitle, required this.icon});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: CircleAvatar(
-        backgroundColor: AppTheme.accent.withOpacity(0.2),
-        child: Text(title.isNotEmpty ? title[0] : '?',
-            style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold)),
-      ),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-      subtitle: subtitle.isNotEmpty ? Text(subtitle) : null,
-      dense: true,
-    );
-  }
-}
-
-class _AllClearCard extends StatelessWidget {
-  const _AllClearCard();
+  const _AlertSection({
+    required this.title,
+    required this.color,
+    required this.icon,
+    required this.children,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(32),
-      child: Column(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 18,
+                    backgroundColor: color.withValues(alpha: 0.14),
+                    child: Icon(icon, size: 18, color: color),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    title,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w700),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              ...children,
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AlertTile extends StatelessWidget {
+  final String title;
+  final String subtitle;
+
+  const _AlertTile({required this.title, required this.subtitle});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
         children: [
-          Icon(Icons.check_circle_outline, size: 64, color: AppTheme.primary.withOpacity(0.5)),
-          const SizedBox(height: 12),
-          Text('All clear!', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppTheme.textSecondary)),
-          const SizedBox(height: 4),
-          const Text('No alerts for today', style: TextStyle(color: AppTheme.textSecondary)),
+          const Icon(Icons.circle, size: 8, color: AppTheme.primary),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 2),
+                Text(subtitle),
+              ],
+            ),
+          ),
         ],
       ),
     );

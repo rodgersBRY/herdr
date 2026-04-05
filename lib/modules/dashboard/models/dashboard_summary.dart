@@ -22,6 +22,8 @@ class CowMilkStat {
 
   factory CowMilkStat.fromApi(Map<String, dynamic> map) =>
       _$CowMilkStatFromJson(map);
+  factory CowMilkStat.fromJson(Map<String, dynamic> json) =>
+      _$CowMilkStatFromJson(json);
 
   Map<String, dynamic> toJson() => _$CowMilkStatToJson(this);
 }
@@ -43,6 +45,8 @@ class CowExpenseStat {
 
   factory CowExpenseStat.fromApi(Map<String, dynamic> map) =>
       _$CowExpenseStatFromJson(map);
+  factory CowExpenseStat.fromJson(Map<String, dynamic> json) =>
+      _$CowExpenseStatFromJson(json);
 
   Map<String, dynamic> toJson() => _$CowExpenseStatToJson(this);
 }

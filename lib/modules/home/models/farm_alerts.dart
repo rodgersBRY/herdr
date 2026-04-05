@@ -24,6 +24,8 @@ class HealthDueAlert {
 
   factory HealthDueAlert.fromApi(Map<String, dynamic> map) =>
       _$HealthDueAlertFromJson(map);
+  factory HealthDueAlert.fromJson(Map<String, dynamic> json) =>
+      _$HealthDueAlertFromJson(json);
 
   Map<String, dynamic> toJson() => _$HealthDueAlertToJson(this);
 }
@@ -46,6 +48,8 @@ class CalvingDueAlert {
 
   factory CalvingDueAlert.fromApi(Map<String, dynamic> map) =>
       _$CalvingDueAlertFromJson(map);
+  factory CalvingDueAlert.fromJson(Map<String, dynamic> json) =>
+      _$CalvingDueAlertFromJson(json);
 
   Map<String, dynamic> toJson() => _$CalvingDueAlertToJson(this);
 }
@@ -64,6 +68,8 @@ class NoMilkTodayAlert {
 
   factory NoMilkTodayAlert.fromApi(Map<String, dynamic> map) =>
       _$NoMilkTodayAlertFromJson(map);
+  factory NoMilkTodayAlert.fromJson(Map<String, dynamic> json) =>
+      _$NoMilkTodayAlertFromJson(json);
 
   Map<String, dynamic> toJson() => _$NoMilkTodayAlertToJson(this);
 }
@@ -90,6 +96,8 @@ class RecentlyTreatedAlert {
 
   factory RecentlyTreatedAlert.fromApi(Map<String, dynamic> map) =>
       _$RecentlyTreatedAlertFromJson(map);
+  factory RecentlyTreatedAlert.fromJson(Map<String, dynamic> json) =>
+      _$RecentlyTreatedAlertFromJson(json);
 
   Map<String, dynamic> toJson() => _$RecentlyTreatedAlertToJson(this);
 }

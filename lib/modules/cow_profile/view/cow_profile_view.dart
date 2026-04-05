@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controller/cow_profile_controller.dart';
+
 import '../../../config/app_theme.dart';
+import '../../../core/utils/app_formatters.dart';
+import '../../../core/utils/constants.dart';
 import '../../../routes/app_routes.dart';
+import '../controller/cow_profile_controller.dart';
 
 class CowProfileView extends StatelessWidget {
   const CowProfileView({super.key});
@@ -10,43 +13,39 @@ class CowProfileView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ctrl = Get.put(CowProfileController());
-    return Scaffold(
-      appBar: AppBar(
-        title: Obx(() => Text(ctrl.cow.displayName)),
-        actions: [
-          PopupMenuButton<String>(
-            onSelected: (v) async {
-              if (v == 'edit') {
-                await Get.toNamed(AppRoutes.editCow, arguments: ctrl.cow);
-                ctrl.loadAll();
-              } else if (v == 'delete') {
-                final confirm = await Get.dialog<bool>(AlertDialog(
-                  title: const Text('Delete Cow?'),
-                  content: Text('Remove ${ctrl.cow.tag} permanently?'),
-                  actions: [
-                    TextButton(onPressed: () => Get.back(result: false), child: const Text('Cancel')),
-                    TextButton(onPressed: () => Get.back(result: true), child: const Text('Delete', style: TextStyle(color: Colors.red))),
-                  ],
-                ));
-                if (confirm == true) ctrl.deleteCow();
-              }
-            },
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: 'edit', child: Text('Edit')),
-              PopupMenuItem(value: 'delete', child: Text('Delete', style: TextStyle(color: Colors.red))),
+
+    return DefaultTabController(
+      length: 5,
+      child: GetBuilder<CowProfileController>(
+        builder: (_) => Scaffold(
+          appBar: AppBar(
+            title: Text(ctrl.cow.displayName),
+            actions: [
+              IconButton(
+                onPressed: ctrl.loadAll,
+                icon: const Icon(Icons.refresh),
+              ),
+              PopupMenuButton<String>(
+                onSelected: (value) async {
+                  if (value == 'edit') {
+                    await Get.toNamed(AppRoutes.editCow, arguments: ctrl.cow);
+                    await ctrl.loadAll();
+                  } else if (value == 'sold') {
+                    await ctrl.markAsInactive(AppConstants.statusSold);
+                  } else if (value == 'dead') {
+                    await ctrl.markAsInactive(AppConstants.statusDead);
+                  }
+                },
+                itemBuilder: (_) => const [
+                  PopupMenuItem(value: 'edit', child: Text('Edit cow')),
+                  PopupMenuItem(value: 'sold', child: Text('Mark as sold')),
+                  PopupMenuItem(value: 'dead', child: Text('Mark as dead')),
+                ],
+              ),
+              const SizedBox(width: 8),
             ],
-          ),
-        ],
-      ),
-      body: DefaultTabController(
-        length: 5,
-        child: Column(
-          children: [
-            const TabBar(
+            bottom: const TabBar(
               isScrollable: true,
-              labelColor: AppTheme.primary,
-              unselectedLabelColor: AppTheme.textSecondary,
-              indicatorColor: AppTheme.primary,
               tabs: [
                 Tab(text: 'Overview'),
                 Tab(text: 'Milk'),
@@ -55,21 +54,20 @@ class CowProfileView extends StatelessWidget {
                 Tab(text: 'Expenses'),
               ],
             ),
-            Expanded(
-              child: Obx(() {
-                if (ctrl.isLoading.value) return const Center(child: CircularProgressIndicator());
-                return TabBarView(
-                  children: [
-                    _OverviewTab(ctrl: ctrl),
-                    _MilkTab(ctrl: ctrl),
-                    _HealthTab(ctrl: ctrl),
-                    _BreedingTab(ctrl: ctrl),
-                    _ExpensesTab(ctrl: ctrl),
-                  ],
-                );
-              }),
-            ),
-          ],
+          ),
+          body: Obx(
+            () => ctrl.isLoading.value
+                ? const Center(child: CircularProgressIndicator())
+                : TabBarView(
+                    children: [
+                      _OverviewTab(ctrl: ctrl),
+                      _MilkTab(ctrl: ctrl),
+                      _HealthTab(ctrl: ctrl),
+                      _BreedingTab(ctrl: ctrl),
+                      _ExpenseTab(ctrl: ctrl),
+                    ],
+                  ),
+          ),
         ),
       ),
     );
@@ -78,31 +76,75 @@ class CowProfileView extends StatelessWidget {
 
 class _OverviewTab extends StatelessWidget {
   final CowProfileController ctrl;
+
   const _OverviewTab({required this.ctrl});
 
   @override
   Widget build(BuildContext context) {
     final cow = ctrl.cow;
+
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _InfoCard(children: [
-          _InfoRow('Tag', cow.tag),
-          if (cow.name != null) _InfoRow('Name', cow.name!),
-          _InfoRow('Gender', cow.gender),
-          if (cow.breed != null) _InfoRow('Breed', cow.breed!),
-          if (cow.birthDate != null) _InfoRow('Birth Date', cow.birthDate!),
-          if (cow.weight != null) _InfoRow('Weight', '${cow.weight} kg'),
-          _InfoRow('Status', cow.status.toUpperCase()),
-          if (cow.notes != null && cow.notes!.isNotEmpty) _InfoRow('Notes', cow.notes!),
-        ]),
-        const SizedBox(height: 12),
-        _InfoCard(children: [
-          _InfoRow('Milk logs', '${ctrl.milkLogs.length}'),
-          _InfoRow('Health records', '${ctrl.healthRecords.length}'),
-          _InfoRow('Breeding records', '${ctrl.breedingRecords.length}'),
-          _InfoRow('Total expenses', 'KES ${ctrl.totalExpenses.value.toStringAsFixed(0)}'),
-        ]),
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF0B6E4F), Color(0xFF2E7D32)],
+            ),
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                cow.tagNumber,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '${cow.breed} • ${cow.source}',
+                style: const TextStyle(color: Colors.white70),
+              ),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  _StatusPill(label: cow.status.toUpperCase()),
+                  _StatusPill(
+                    label: cow.isPendingSync ? 'PENDING SYNC' : 'SYNCED',
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        _SectionCard(
+          title: 'Details',
+          children: [
+            _InfoRow('Breed', cow.breed),
+            _InfoRow('Date of birth', AppFormatters.prettyDate(cow.dateOfBirth)),
+            _InfoRow('Source', cow.source),
+            _InfoRow('Status', cow.status),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _SectionCard(
+          title: 'Summary',
+          children: [
+            _InfoRow('Milk logs', '${ctrl.milkLogs.length}'),
+            _InfoRow('Health records', '${ctrl.healthRecords.length}'),
+            _InfoRow('Breeding records', '${ctrl.breedingRecords.length}'),
+            _InfoRow('Expense entries', '${ctrl.expenses.length}'),
+            _InfoRow('Total expenses', AppFormatters.money(ctrl.totalExpenses.value)),
+          ],
+        ),
       ],
     );
   }
@@ -110,60 +152,80 @@ class _OverviewTab extends StatelessWidget {
 
 class _MilkTab extends StatelessWidget {
   final CowProfileController ctrl;
+
   const _MilkTab({required this.ctrl});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: ctrl.milkLogs.isEmpty
-          ? const Center(child: Text('No milk logs yet', style: TextStyle(color: AppTheme.textSecondary)))
-          : ListView.separated(
-              itemCount: ctrl.milkLogs.length,
-              separatorBuilder: (_, __) => const Divider(height: 1),
-              itemBuilder: (_, i) {
-                final log = ctrl.milkLogs[i];
-                return ListTile(
-                  title: Text(log.logDate, style: const TextStyle(fontWeight: FontWeight.w600)),
-                  subtitle: Text('AM: ${log.morningLitres}L  |  PM: ${log.eveningLitres}L'),
-                  trailing: Text('${log.totalLitres.toStringAsFixed(1)} L',
-                      style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primary, fontSize: 16)),
-                );
-              },
-            ),
+    if (ctrl.milkLogs.isEmpty) {
+      return const _EmptyTab(message: 'No milk logs for this cow yet.');
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.all(16),
+      itemCount: ctrl.milkLogs.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      itemBuilder: (_, index) {
+        final log = ctrl.milkLogs[index];
+        return _TileCard(
+          icon: Icons.water_drop,
+          color: Colors.blue,
+          title: '${log.litres.toStringAsFixed(1)} L',
+          subtitle:
+              '${AppFormatters.prettyDate(log.logDate)} • ${log.period}',
+        );
+      },
     );
   }
 }
 
 class _HealthTab extends StatelessWidget {
   final CowProfileController ctrl;
+
   const _HealthTab({required this.ctrl});
 
   @override
   Widget build(BuildContext context) {
+    if (ctrl.healthRecords.isEmpty) {
+      return Stack(
+        children: [
+          const _EmptyTab(message: 'No health records yet.'),
+          _Fab(
+            onPressed: () async {
+              await Get.toNamed(AppRoutes.addHealthRecord, arguments: ctrl.cow);
+              await ctrl.loadAll();
+            },
+          ),
+        ],
+      );
+    }
+
     return Scaffold(
-      body: ctrl.healthRecords.isEmpty
-          ? const Center(child: Text('No health records yet', style: TextStyle(color: AppTheme.textSecondary)))
-          : ListView.separated(
-              itemCount: ctrl.healthRecords.length,
-              separatorBuilder: (_, __) => const Divider(height: 1),
-              itemBuilder: (_, i) {
-                final r = ctrl.healthRecords[i];
-                return ListTile(
-                  leading: const Icon(Icons.medical_services, color: Colors.red),
-                  title: Text(r.description, style: const TextStyle(fontWeight: FontWeight.w600)),
-                  subtitle: Text('${r.recordType.toUpperCase()} · ${r.recordDate}${r.nextDueDate != null ? '\nNext: ${r.nextDueDate}' : ''}'),
-                  isThreeLine: r.nextDueDate != null,
-                  trailing: r.cost != null ? Text('KES ${r.cost!.toStringAsFixed(0)}') : null,
-                );
-              },
-            ),
-      floatingActionButton: FloatingActionButton(
+      body: ListView.separated(
+        padding: const EdgeInsets.all(16),
+        itemCount: ctrl.healthRecords.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 10),
+        itemBuilder: (_, index) {
+          final record = ctrl.healthRecords[index];
+          return _TileCard(
+            icon: Icons.medical_services,
+            color: Colors.red,
+            title: record.description,
+            subtitle: [
+              record.type,
+              AppFormatters.prettyDate(record.recordDate),
+              if (record.nextDueDate != null)
+                'Next: ${AppFormatters.prettyDate(record.nextDueDate)}',
+              if (record.drugUsed != null) record.drugUsed!,
+            ].join(' • '),
+          );
+        },
+      ),
+      floatingActionButton: _Fab(
         onPressed: () async {
           await Get.toNamed(AppRoutes.addHealthRecord, arguments: ctrl.cow);
-          ctrl.loadAll();
+          await ctrl.loadAll();
         },
-        backgroundColor: AppTheme.primary,
-        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
@@ -171,108 +233,163 @@ class _HealthTab extends StatelessWidget {
 
 class _BreedingTab extends StatelessWidget {
   final CowProfileController ctrl;
+
   const _BreedingTab({required this.ctrl});
 
   @override
   Widget build(BuildContext context) {
+    if (ctrl.breedingRecords.isEmpty) {
+      return Stack(
+        children: [
+          const _EmptyTab(message: 'No breeding records yet.'),
+          _Fab(
+            onPressed: () async {
+              await Get.toNamed(AppRoutes.addBreedingRecord, arguments: ctrl.cow);
+              await ctrl.loadAll();
+            },
+          ),
+        ],
+      );
+    }
+
     return Scaffold(
-      body: ctrl.breedingRecords.isEmpty
-          ? const Center(child: Text('No breeding records yet', style: TextStyle(color: AppTheme.textSecondary)))
-          : ListView.separated(
-              itemCount: ctrl.breedingRecords.length,
-              separatorBuilder: (_, __) => const Divider(height: 1),
-              itemBuilder: (_, i) {
-                final r = ctrl.breedingRecords[i];
-                return ListTile(
-                  leading: const Icon(Icons.favorite, color: Colors.purple),
-                  title: Text(r.recordType.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.w600)),
-                  subtitle: Text([
-                    if (r.serviceDate != null) 'Date: ${r.serviceDate}',
-                    if (r.sireName != null) 'Sire: ${r.sireName}',
-                    if (r.pregnancyResult != null) 'Result: ${r.pregnancyResult}',
-                    if (r.expectedCalvingDate != null) 'Calving: ${r.expectedCalvingDate}',
-                    if (r.notes != null) r.notes!,
-                  ].join('\n')),
-                  isThreeLine: true,
-                );
-              },
-            ),
-      floatingActionButton: FloatingActionButton(
+      body: ListView.separated(
+        padding: const EdgeInsets.all(16),
+        itemCount: ctrl.breedingRecords.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 10),
+        itemBuilder: (_, index) {
+          final record = ctrl.breedingRecords[index];
+          final details = <String>[
+            record.eventType,
+            AppFormatters.prettyDate(record.eventDate),
+            if (record.expectedCalvingDate != null)
+              'Expected: ${AppFormatters.prettyDate(record.expectedCalvingDate)}',
+            if (record.calfTagNumber != null) 'Calf: ${record.calfTagNumber}',
+            if (record.notes != null) record.notes!,
+          ];
+          return _TileCard(
+            icon: Icons.favorite,
+            color: Colors.purple,
+            title: record.eventType.replaceAll('_', ' '),
+            subtitle: details.join(' • '),
+          );
+        },
+      ),
+      floatingActionButton: _Fab(
         onPressed: () async {
           await Get.toNamed(AppRoutes.addBreedingRecord, arguments: ctrl.cow);
-          ctrl.loadAll();
+          await ctrl.loadAll();
         },
-        backgroundColor: AppTheme.primary,
-        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
 }
 
-class _ExpensesTab extends StatelessWidget {
+class _ExpenseTab extends StatelessWidget {
   final CowProfileController ctrl;
-  const _ExpensesTab({required this.ctrl});
+
+  const _ExpenseTab({required this.ctrl});
 
   @override
   Widget build(BuildContext context) {
+    if (ctrl.expenses.isEmpty) {
+      return Stack(
+        children: [
+          const _EmptyTab(message: 'No expenses recorded for this cow.'),
+          _Fab(
+            onPressed: () async {
+              await Get.toNamed(AppRoutes.addExpense, arguments: ctrl.cow);
+              await ctrl.loadAll();
+            },
+          ),
+        ],
+      );
+    }
+
     return Scaffold(
       body: Column(
         children: [
           Container(
-            color: AppTheme.primary.withOpacity(0.08),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            margin: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppTheme.primary.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(18),
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Total Expenses', style: TextStyle(fontWeight: FontWeight.w600)),
-                Obx(() => Text('KES ${ctrl.totalExpenses.value.toStringAsFixed(0)}',
-                    style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primary, fontSize: 16))),
+                const Text(
+                  'Total expenses',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                Obx(
+                  () => Text(
+                    AppFormatters.money(ctrl.totalExpenses.value),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.primary,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
           Expanded(
-            child: ctrl.expenses.isEmpty
-                ? const Center(child: Text('No expenses yet', style: TextStyle(color: AppTheme.textSecondary)))
-                : ListView.separated(
-                    itemCount: ctrl.expenses.length,
-                    separatorBuilder: (_, __) => const Divider(height: 1),
-                    itemBuilder: (_, i) {
-                      final e = ctrl.expenses[i];
-                      return ListTile(
-                        leading: const Icon(Icons.receipt_long, color: Colors.orange),
-                        title: Text(e.description, style: const TextStyle(fontWeight: FontWeight.w600)),
-                        subtitle: Text('${e.category.toUpperCase()} · ${e.expenseDate}'),
-                        trailing: Text('KES ${e.amount.toStringAsFixed(0)}',
-                            style: const TextStyle(fontWeight: FontWeight.bold)),
-                      );
-                    },
-                  ),
+            child: ListView.separated(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              itemCount: ctrl.expenses.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              itemBuilder: (_, index) {
+                final expense = ctrl.expenses[index];
+                return _TileCard(
+                  icon: Icons.receipt_long,
+                  color: Colors.orange,
+                  title: AppFormatters.money(expense.amount),
+                  subtitle:
+                      '${expense.category} • ${AppFormatters.prettyDate(expense.expenseDate)}${expense.notes != null ? ' • ${expense.notes}' : ''}',
+                );
+              },
+            ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: _Fab(
         onPressed: () async {
           await Get.toNamed(AppRoutes.addExpense, arguments: ctrl.cow);
-          ctrl.loadAll();
+          await ctrl.loadAll();
         },
-        backgroundColor: AppTheme.primary,
-        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
 }
 
-class _InfoCard extends StatelessWidget {
+class _SectionCard extends StatelessWidget {
+  final String title;
   final List<Widget> children;
-  const _InfoCard({required this.children});
+
+  const _SectionCard({required this.title, required this.children});
 
   @override
   Widget build(BuildContext context) {
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(children: children),
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 12),
+            ...children,
+          ],
+        ),
       ),
     );
   }
@@ -281,18 +398,121 @@ class _InfoCard extends StatelessWidget {
 class _InfoRow extends StatelessWidget {
   final String label;
   final String value;
+
   const _InfoRow(this.label, this.value);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(width: 110, child: Text(label, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13))),
-          Expanded(child: Text(value, style: const TextStyle(fontWeight: FontWeight.w500))),
+          SizedBox(
+            width: 120,
+            child: Text(
+              label,
+              style: const TextStyle(color: AppTheme.textSecondary),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
         ],
+      ),
+    );
+  }
+}
+
+class _TileCard extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String title;
+  final String subtitle;
+
+  const _TileCard({
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.zero,
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: color.withValues(alpha: 0.14),
+          child: Icon(icon, color: color),
+        ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
+        subtitle: Text(subtitle),
+      ),
+    );
+  }
+}
+
+class _StatusPill extends StatelessWidget {
+  final String label;
+
+  const _StatusPill({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.16),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyTab extends StatelessWidget {
+  final String message;
+
+  const _EmptyTab({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text(
+        message,
+        style: Theme.of(context)
+            .textTheme
+            .bodyLarge
+            ?.copyWith(color: AppTheme.textSecondary),
+      ),
+    );
+  }
+}
+
+class _Fab extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const _Fab({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.bottomRight,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: FloatingActionButton(
+          onPressed: onPressed,
+          child: const Icon(Icons.add),
+        ),
       ),
     );
   }

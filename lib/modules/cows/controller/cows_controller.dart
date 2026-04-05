@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../repository/cow_repository.dart';
+
 import '../models/cow.dart';
+import '../repository/cow_repository.dart';
 
 class CowsController extends GetxController {
   final CowRepository _repo = CowRepository();
@@ -14,51 +15,41 @@ class CowsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-
-    loadCows();
-
     searchCtrl.addListener(_onSearch);
+    loadCows();
   }
 
   @override
   void onClose() {
     searchCtrl.removeListener(_onSearch);
-
     searchCtrl.dispose();
-
     super.onClose();
-  }
-
-  void _onSearch() {
-    final q = searchCtrl.text.trim();
-
-    if (q.isEmpty) {
-      filtered.value = cows;
-    } else {
-      final ql = q.toLowerCase();
-
-      filtered.value = cows
-          .where((c) =>
-              c.tag.toLowerCase().contains(ql) ||
-              (c.name?.toLowerCase().contains(ql) ?? false))
-          .toList();
-    }
   }
 
   Future<void> loadCows() async {
     isLoading.value = true;
-
     try {
       cows.value = await _repo.getAll();
-      
       _onSearch();
     } finally {
       isLoading.value = false;
     }
   }
 
-  Future<void> deleteCow(String localId) async {
-    await _repo.delete(localId);
-    await loadCows();
+  void _onSearch() {
+    final query = searchCtrl.text.trim().toLowerCase();
+    if (query.isEmpty) {
+      filtered.assignAll(cows);
+      return;
+    }
+
+    filtered.assignAll(
+      cows.where((cow) {
+        return cow.tagNumber.toLowerCase().contains(query) ||
+            cow.breed.toLowerCase().contains(query) ||
+            cow.status.toLowerCase().contains(query) ||
+            cow.source.toLowerCase().contains(query);
+      }),
+    );
   }
 }
