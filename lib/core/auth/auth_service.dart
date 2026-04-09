@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 
+import '../network/api_error.dart';
 import '../network/network_status_service.dart';
 import '../utils/constants.dart';
 
@@ -146,19 +147,25 @@ class AuthService extends GetxService {
     required String email,
     required String password,
   }) async {
-    final response = await _publicDio().post(
-      '/auth/sign-in',
-      data: {'email': email, 'password': password},
-    );
+    try {
+      final response = await _publicDio().post(
+        '/auth/sign-in',
+        data: {'email': email, 'password': password},
+      );
 
-    final payload = _asMap(response.data);
-    await _applyAuthPayload(payload, requireSession: true);
+      final payload = _asMap(response.data);
+      await _applyAuthPayload(payload, requireSession: true);
 
-    if (_isOnline) {
-      await fetchCurrentUser();
+      if (_isOnline) {
+        await fetchCurrentUser();
+      }
+
+      return payload;
+    } on DioException catch (error) {
+      throw error.copyWith(
+        message: extractApiErrorMessage(error, fallback: 'Sign-in failed'),
+      );
     }
-
-    return payload;
   }
 
   Future<Map<String, dynamic>> signUp({
@@ -166,24 +173,30 @@ class AuthService extends GetxService {
     required String password,
     String? fullName,
   }) async {
-    final response = await _publicDio().post(
-      '/auth/sign-up',
-      data: {
-        'email': email,
-        'password': password,
-        if (fullName != null && fullName.trim().isNotEmpty)
-          'full_name': fullName.trim(),
-      },
-    );
+    try {
+      final response = await _publicDio().post(
+        '/auth/sign-up',
+        data: {
+          'email': email,
+          'password': password,
+          if (fullName != null && fullName.trim().isNotEmpty)
+            'full_name': fullName.trim(),
+        },
+      );
 
-    final payload = _asMap(response.data);
-    await _applyAuthPayload(payload, requireSession: false);
+      final payload = _asMap(response.data);
+      await _applyAuthPayload(payload, requireSession: false);
 
-    if (isAuthenticated.value && _isOnline) {
-      await fetchCurrentUser();
+      if (isAuthenticated.value && _isOnline) {
+        await fetchCurrentUser();
+      }
+
+      return payload;
+    } on DioException catch (error) {
+      throw error.copyWith(
+        message: extractApiErrorMessage(error, fallback: 'Sign-up failed'),
+      );
     }
-
-    return payload;
   }
 
   Future<Map<String, dynamic>?> fetchCurrentUser() async {
@@ -192,18 +205,24 @@ class AuthService extends GetxService {
       return null;
     }
 
-    final response = await _publicDio().get(
-      '/auth/me',
-      options: Options(headers: {'Authorization': 'Bearer $token'}),
-    );
-    final payload = _asMap(response.data);
-    final user = _asMap(payload['user']);
-    if (user.isNotEmpty) {
-      _applyUser(user);
-      await _persistSession();
-    }
+    try {
+      final response = await _publicDio().get(
+        '/auth/me',
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+      final payload = _asMap(response.data);
+      final user = _asMap(payload['user']);
+      if (user.isNotEmpty) {
+        _applyUser(user);
+        await _persistSession();
+      }
 
-    return payload;
+      return payload;
+    } on DioException catch (error) {
+      throw error.copyWith(
+        message: extractApiErrorMessage(error, fallback: 'Failed to get user'),
+      );
+    }
   }
 
   Future<void> restoreSession() async {

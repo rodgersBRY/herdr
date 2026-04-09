@@ -33,7 +33,7 @@ Future<void> main() async {
   await Get.putAsync(() => SyncService().init(), permanent: true);
 
   Get.put(AuthController(), permanent: true);
-  
+
   runApp(
     CattleManagerApp(
       initialRoute:

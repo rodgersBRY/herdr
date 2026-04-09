@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../core/database/database_helper.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/api_error.dart';
 import '../../../core/network/network_status_service.dart';
 import '../../../core/utils/constants.dart';
 import '../../cows/repository/cow_repository.dart';
@@ -147,7 +148,10 @@ class ExpenseRepository {
     } on DioException catch (error) {
       await _upsertDb(
         expense.copyWith(
-          lastError: error.message,
+          lastError: extractApiErrorMessage(
+            error,
+            fallback: 'Failed to sync expense',
+          ),
           updatedAt: DateTime.now().toIso8601String(),
         ),
       );

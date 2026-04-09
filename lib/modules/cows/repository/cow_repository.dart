@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../core/database/database_helper.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/api_error.dart';
 import '../../../core/network/network_status_service.dart';
 import '../../../core/utils/constants.dart';
 import '../models/cow.dart';
@@ -221,7 +222,10 @@ class CowRepository {
               cow.syncAction == AppConstants.syncCreate
                   ? AppConstants.syncCreate
                   : AppConstants.syncUpdate,
-          lastError: error.message,
+          lastError: extractApiErrorMessage(
+            error,
+            fallback: 'Failed to sync cow',
+          ),
           updatedAt: DateTime.now().toIso8601String(),
         ),
       );

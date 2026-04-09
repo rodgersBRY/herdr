@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../../routes/app_routes.dart';
 import '../auth/auth_service.dart';
+import 'api_error.dart';
 import '../utils/constants.dart';
 
 class ApiClient extends GetxService {
@@ -89,16 +90,10 @@ class ApiClient extends GetxService {
             }
           }
 
-          final response = error.response;
-          if (response?.data is Map<String, dynamic>) {
-            final payload = response!.data as Map<String, dynamic>;
-            final message = payload['error'];
-
-            if (message is String && message.isNotEmpty) {
-              handler.reject(error.copyWith(message: message));
-
-              return;
-            }
+          final message = extractApiErrorMessageOrNull(error);
+          if (message != null) {
+            handler.reject(error.copyWith(message: message));
+            return;
           }
           handler.next(error);
         },

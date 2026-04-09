@@ -3,6 +3,31 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'breeding_record.g.dart';
 
+String? _stringFromDynamic(dynamic value) {
+  if (value == null) {
+    return null;
+  }
+
+  if (value is String) {
+    return value;
+  }
+
+  if (value is num || value is bool) {
+    return value.toString();
+  }
+
+  if (value is Map<String, dynamic>) {
+    for (final key in const ['id', 'value', 'name']) {
+      final nested = value[key];
+      if (nested != null) {
+        return _stringFromDynamic(nested);
+      }
+    }
+  }
+
+  return null;
+}
+
 @JsonSerializable(includeIfNull: false)
 class BreedingRecord {
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -72,10 +97,27 @@ class BreedingRecord {
     required String cowLocalId,
     required String syncAction,
     String? lastError,
-  }) => BreedingRecord.fromJson(map).copyWith(
+  }) => BreedingRecord(
     localId: localId,
-    cowLocalId: cowLocalId,
+    serverId: _stringFromDynamic(map['id']),
     syncAction: syncAction,
+    cowLocalId: cowLocalId,
+    eventType: _stringFromDynamic(map['eventType'] ?? map['event_type']) ?? '',
+    eventDate: _stringFromDynamic(map['eventDate'] ?? map['event_date']) ?? '',
+    expectedCalvingDate: _stringFromDynamic(
+      map['expectedCalvingDate'] ?? map['expected_calving_date'],
+    ),
+    calfTagNumber: _stringFromDynamic(
+      map['calfTagNumber'] ?? map['calf_tag_number'],
+    ),
+    calfBreed: _stringFromDynamic(map['calfBreed'] ?? map['calf_breed']),
+    calfDateOfBirth: _stringFromDynamic(
+      map['calfDateOfBirth'] ?? map['calf_date_of_birth'],
+    ),
+    notes: _stringFromDynamic(map['notes']),
+    createdAt:
+        _stringFromDynamic(map['createdAt'] ?? map['created_at']) ??
+        DateTime.now().toIso8601String(),
     updatedAt: DateTime.now().toIso8601String(),
     lastError: lastError,
   );

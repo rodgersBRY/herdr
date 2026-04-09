@@ -62,16 +62,11 @@ class _SignUpViewState extends State<SignUpView> {
                         style: Theme.of(context).textTheme.headlineSmall
                             ?.copyWith(fontWeight: FontWeight.w800),
                       ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Your account secures API access and enables row-level data policies.',
-                        style: TextStyle(color: AppTheme.textSecondary),
-                      ),
                       const SizedBox(height: 20),
                       TextFormField(
                         controller: _fullNameController,
                         decoration: const InputDecoration(
-                          labelText: 'Full name (optional)',
+                          labelText: 'Full name',
                         ),
                       ),
                       const SizedBox(height: 16),

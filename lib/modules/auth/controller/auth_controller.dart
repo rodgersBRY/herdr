@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
 import '../../../core/auth/auth_service.dart';
+import '../../../core/network/api_error.dart';
 import '../../../core/sync/sync_service.dart';
 import '../../../routes/app_routes.dart';
 
@@ -30,7 +31,7 @@ class AuthController extends GetxController {
 
       Get.offAllNamed(AppRoutes.main);
     } on DioException catch (error) {
-      final message = error.message ?? 'Sign-in failed';
+      final message = extractApiErrorMessage(error, fallback: 'Sign-in failed');
 
       Get.snackbar(
         'Sign-in failed',
@@ -74,7 +75,7 @@ class AuthController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
       );
     } on DioException catch (error) {
-      final message = error.message ?? 'Sign-up failed';
+      final message = extractApiErrorMessage(error, fallback: 'Sign-up failed');
 
       Get.snackbar(
         'Sign-up failed',

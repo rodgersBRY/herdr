@@ -25,11 +25,13 @@ class HomeController extends GetxController {
 
   Future<void> loadAlerts() async {
     isLoading.value = true;
+    
     try {
       final results = await Future.wait([
         _alertsRepository.getAlerts(),
         _dashboardRepository.getSummary(currentMonth),
       ]);
+
       alerts.value = results[0] as FarmAlerts;
       todayMilk.value = (results[1] as dynamic).todayTotalMilk as double;
     } finally {

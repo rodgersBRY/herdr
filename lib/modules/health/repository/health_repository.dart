@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../core/database/database_helper.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/api_error.dart';
 import '../../../core/network/network_status_service.dart';
 import '../../../core/utils/constants.dart';
 import '../../cows/repository/cow_repository.dart';
@@ -168,7 +169,10 @@ class HealthRepository {
     } on DioException catch (error) {
       await _upsertDb(
         record.copyWith(
-          lastError: error.message,
+          lastError: extractApiErrorMessage(
+            error,
+            fallback: 'Failed to sync health record',
+          ),
           updatedAt: DateTime.now().toIso8601String(),
         ),
       );

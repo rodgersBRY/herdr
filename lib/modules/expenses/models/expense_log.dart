@@ -10,6 +10,27 @@ double _doubleFromJson(dynamic value) {
   return double.tryParse(value?.toString() ?? '') ?? 0;
 }
 
+String? _stringFromDynamic(dynamic value) {
+  if (value == null) {
+    return null;
+  }
+  if (value is String) {
+    return value;
+  }
+  if (value is num || value is bool) {
+    return value.toString();
+  }
+  if (value is Map<String, dynamic>) {
+    for (final key in const ['id', 'value', 'name']) {
+      final nested = value[key];
+      if (nested != null) {
+        return _stringFromDynamic(nested);
+      }
+    }
+  }
+  return null;
+}
+
 @JsonSerializable(includeIfNull: false)
 class ExpenseLog {
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -68,10 +89,19 @@ class ExpenseLog {
     required String cowLocalId,
     required String syncAction,
     String? lastError,
-  }) => ExpenseLog.fromJson(map).copyWith(
+  }) => ExpenseLog(
     localId: localId,
-    cowLocalId: cowLocalId,
+    serverId: _stringFromDynamic(map['id']),
     syncAction: syncAction,
+    cowLocalId: cowLocalId,
+    category: _stringFromDynamic(map['category']) ?? '',
+    amount: _doubleFromJson(map['amount']),
+    expenseDate:
+        _stringFromDynamic(map['expenseDate'] ?? map['expense_date']) ?? '',
+    notes: _stringFromDynamic(map['notes']),
+    createdAt:
+        _stringFromDynamic(map['createdAt'] ?? map['created_at']) ??
+        DateTime.now().toIso8601String(),
     updatedAt: DateTime.now().toIso8601String(),
     lastError: lastError,
   );
