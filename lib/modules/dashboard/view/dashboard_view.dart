@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../config/app_theme.dart';
+import '../../../core/ui/app_loading_dots.dart';
 import '../../../core/utils/app_formatters.dart';
 import '../controller/dashboard_controller.dart';
 
@@ -25,7 +26,13 @@ class DashboardView extends StatelessWidget {
             ),
             body: Obx(() {
               if (ctrl.isLoading.value) {
-                return const Center(child: CircularProgressIndicator());
+                return const Center(
+                  child: AppLoadingDots(
+                    color: AppTheme.primary,
+                    dotSize: 10,
+                    gap: 6,
+                  ),
+                );
               }
 
               final summary = ctrl.summary.value;

@@ -17,6 +17,7 @@ class SyncService extends GetxService {
   final ExpenseRepository _expenseRepository = ExpenseRepository();
   final SalesRepository _salesRepository = SalesRepository();
   final AuthService _authService = Get.find<AuthService>();
+  final RxBool isSyncing = false.obs;
 
   Worker? _networkWorker;
   Worker? _authWorker;
@@ -43,16 +44,21 @@ class SyncService extends GetxService {
   }
 
   Future<void> syncAll() async {
-    if (!_authService.isAuthenticated.value) {
+    if (!_authService.isAuthenticated.value || isSyncing.value) {
       return;
     }
 
-    await _cowRepository.syncPending();
-    await _milkRepository.syncPending();
-    await _healthRepository.syncPending();
-    await _breedingRepository.syncPending();
-    await _expenseRepository.syncPending();
-    await _salesRepository.syncPending();
+    isSyncing.value = true;
+    try {
+      await _cowRepository.syncPending();
+      await _milkRepository.syncPending();
+      await _healthRepository.syncPending();
+      await _breedingRepository.syncPending();
+      await _expenseRepository.syncPending();
+      await _salesRepository.syncPending();
+    } finally {
+      isSyncing.value = false;
+    }
   }
 
   @override

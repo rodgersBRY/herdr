@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../config/app_theme.dart';
+import '../../../core/ui/app_loading_dots.dart';
 import '../../../routes/app_routes.dart';
 import '../controller/cows_controller.dart';
 import '../models/cow.dart';
@@ -84,7 +85,13 @@ class CowsView extends StatelessWidget {
                 Expanded(
                   child: Obx(() {
                     if (ctrl.isLoading.value) {
-                      return const Center(child: CircularProgressIndicator());
+                      return const Center(
+                        child: AppLoadingDots(
+                          color: AppTheme.primary,
+                          dotSize: 10,
+                          gap: 6,
+                        ),
+                      );
                     }
 
                     if (ctrl.filtered.isEmpty) {

@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../../../config/app_theme.dart';
+import '../../../core/ui/app_loading_dots.dart';
 import '../../../core/utils/constants.dart';
 import '../../cows/models/cow.dart';
 import '../models/health_record.dart';
@@ -86,7 +87,9 @@ class AddHealthRecordView extends StatelessWidget {
                           ? const SizedBox(
                             width: 20,
                             height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                            child: Center(
+                              child: AppLoadingDots(dotSize: 4.5, gap: 2.5),
+                            ),
                           )
                           : const Text('Save Record'),
                 ),

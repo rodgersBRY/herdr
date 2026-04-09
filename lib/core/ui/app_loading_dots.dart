@@ -6,12 +6,14 @@ class AppLoadingDots extends StatefulWidget {
   final Color color;
   final double dotSize;
   final int dotCount;
+  final double gap;
 
   const AppLoadingDots({
     super.key,
     this.color = Colors.white,
     this.dotSize = 6,
     this.dotCount = 3,
+    this.gap = 4,
   });
 
   @override
@@ -49,25 +51,47 @@ class _AppLoadingDotsState extends State<AppLoadingDots>
     return AnimatedBuilder(
       animation: _controller,
       builder: (_, __) {
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: List.generate(widget.dotCount, (index) {
-            final scale = _dotScale(index);
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2),
-              child: Transform.scale(
-                scale: scale,
-                child: Container(
-                  width: widget.dotSize,
-                  height: widget.dotSize,
-                  decoration: BoxDecoration(
-                    color: widget.color,
-                    shape: BoxShape.circle,
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final maxWidth =
+                constraints.maxWidth.isFinite
+                    ? constraints.maxWidth
+                    : double.infinity;
+
+            final baseWidth =
+                (widget.dotSize * widget.dotCount) +
+                (widget.gap * (widget.dotCount - 1));
+            final shrinkRatio =
+                maxWidth.isFinite && maxWidth > 0
+                    ? (maxWidth / baseWidth).clamp(0.4, 1.0)
+                    : 1.0;
+
+            final effectiveDotSize = widget.dotSize * shrinkRatio;
+            final effectiveGap = widget.gap * shrinkRatio;
+
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: List.generate(widget.dotCount, (index) {
+                final scale = _dotScale(index);
+                return Padding(
+                  padding: EdgeInsets.only(
+                    right: index == widget.dotCount - 1 ? 0 : effectiveGap,
                   ),
-                ),
-              ),
+                  child: Transform.scale(
+                    scale: scale,
+                    child: Container(
+                      width: effectiveDotSize,
+                      height: effectiveDotSize,
+                      decoration: BoxDecoration(
+                        color: widget.color,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                );
+              }),
             );
-          }),
+          },
         );
       },
     );

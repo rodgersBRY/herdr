@@ -3,6 +3,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:get/get.dart';
 
+import '../../../core/ui/app_loading_dots.dart';
 import '../../../core/utils/app_formatters.dart';
 import '../../../core/utils/constants.dart';
 import '../controller/edit_cow_controller.dart';
@@ -75,7 +76,9 @@ class EditCowView extends StatelessWidget {
                           ? const SizedBox(
                             width: 20,
                             height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                            child: Center(
+                              child: AppLoadingDots(dotSize: 4.5, gap: 2.5),
+                            ),
                           )
                           : const Text('Update Cow'),
                 ),

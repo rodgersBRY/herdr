@@ -4,6 +4,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:get/get.dart';
 
 import '../../../config/app_theme.dart';
+import '../../../core/ui/app_loading_dots.dart';
 import '../../../core/utils/app_formatters.dart';
 import '../../../routes/app_routes.dart';
 import '../controller/sales_controller.dart';
@@ -36,7 +37,13 @@ class SalesView extends StatelessWidget {
             ),
             body: Obx(() {
               if (ctrl.isLoading.value) {
-                return const Center(child: CircularProgressIndicator());
+                return const Center(
+                  child: AppLoadingDots(
+                    color: AppTheme.primary,
+                    dotSize: 10,
+                    gap: 6,
+                  ),
+                );
               }
 
               return Column(
@@ -223,7 +230,9 @@ class AddSaleView extends StatelessWidget {
                           ? const SizedBox(
                             width: 20,
                             height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                            child: Center(
+                              child: AppLoadingDots(dotSize: 4.5, gap: 2.5),
+                            ),
                           )
                           : const Text('Save Sale'),
                 ),

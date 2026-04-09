@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../config/app_theme.dart';
 import '../../../core/network/network_status_service.dart';
+import '../../../core/ui/app_loading_dots.dart';
 import '../../../core/utils/app_formatters.dart';
 import '../../../routes/app_routes.dart';
 import '../../../widgets/app_scaffold.dart';
@@ -59,7 +60,13 @@ class HomeView extends StatelessWidget {
             ),
             body: Obx(() {
               if (ctrl.isLoading.value) {
-                return const Center(child: CircularProgressIndicator());
+                return const Center(
+                  child: AppLoadingDots(
+                    color: AppTheme.primary,
+                    dotSize: 10,
+                    gap: 6,
+                  ),
+                );
               }
 
               final alerts = ctrl.alerts.value;

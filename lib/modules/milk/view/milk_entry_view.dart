@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../config/app_theme.dart';
+import '../../../core/ui/app_loading_dots.dart';
 import '../controller/milk_entry_controller.dart';
 
 class MilkEntryView extends StatelessWidget {
@@ -24,7 +25,13 @@ class MilkEntryView extends StatelessWidget {
                             ? const SizedBox(
                               width: 18,
                               height: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                              child: Center(
+                                child: AppLoadingDots(
+                                  color: AppTheme.primary,
+                                  dotSize: 4,
+                                  gap: 2,
+                                ),
+                              ),
                             )
                             : const Text(
                               'SAVE',
@@ -46,9 +53,8 @@ class MilkEntryView extends StatelessWidget {
                             ? const SizedBox(
                               width: 18,
                               height: 18,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
+                              child: Center(
+                                child: AppLoadingDots(dotSize: 4, gap: 2),
                               ),
                             )
                             : const Icon(Icons.save_outlined),
@@ -63,7 +69,13 @@ class MilkEntryView extends StatelessWidget {
             ),
             body: Obx(() {
               if (ctrl.isLoading.value) {
-                return const Center(child: CircularProgressIndicator());
+                return const Center(
+                  child: AppLoadingDots(
+                    color: AppTheme.primary,
+                    dotSize: 10,
+                    gap: 6,
+                  ),
+                );
               }
 
               if (ctrl.cows.isEmpty) {

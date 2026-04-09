@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../config/app_theme.dart';
 import '../core/network/network_status_service.dart';
 import '../core/sync/sync_service.dart';
+import '../core/ui/app_loading_dots.dart';
 import '../modules/home/view/home_view.dart';
 import '../modules/cows/view/cows_view.dart';
 import '../modules/milk/view/milk_entry_view.dart';
@@ -21,7 +22,6 @@ class AppScaffold extends StatelessWidget {
           (ctrl) => Scaffold(
             body: Column(
               children: [
-                SafeArea(bottom: false, child: const _ConnectivityStrip()),
                 Expanded(
                   child: IndexedStack(
                     index: ctrl.currentIndex,
@@ -34,6 +34,7 @@ class AppScaffold extends StatelessWidget {
                     ],
                   ),
                 ),
+                const _SyncDock(),
               ],
             ),
             bottomNavigationBar: Container(
@@ -104,8 +105,8 @@ class AppScaffoldController extends GetxController {
   }
 }
 
-class _ConnectivityStrip extends StatelessWidget {
-  const _ConnectivityStrip();
+class _SyncDock extends StatelessWidget {
+  const _SyncDock();
 
   @override
   Widget build(BuildContext context) {
@@ -114,33 +115,112 @@ class _ConnectivityStrip extends StatelessWidget {
 
     return Obx(() {
       final online = network.isOnline.value;
-      return AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        width: double.infinity,
-        color: online ? const Color(0xFFE6F4EA) : const Color(0xFFFFF2D9),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        child: Row(
-          children: [
-            Icon(
-              online ? Icons.cloud_done : Icons.cloud_off,
-              size: 18,
-              color: online ? AppTheme.primary : const Color(0xFF9A6700),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                online
-                    ? 'Online. New changes sync with the server.'
-                    : 'Offline mode. Changes stay local until you reconnect.',
-                style: const TextStyle(fontWeight: FontWeight.w600),
+      final syncing = sync.isSyncing.value;
+      final chipText =
+          online ? (syncing ? 'Syncing' : 'Online') : 'Offline mode';
+
+      return SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: Row(
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeOutCubic,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color:
+                      online
+                          ? const Color(0xFFEAF6EE)
+                          : const Color(0xFFFFF3E0),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(
+                    color:
+                        online
+                            ? AppTheme.primary.withValues(alpha: 0.22)
+                            : const Color(0xFFE2B66D),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      online
+                          ? Icons.cloud_done_rounded
+                          : Icons.cloud_off_rounded,
+                      size: 17,
+                      color:
+                          online ? AppTheme.primary : const Color(0xFF9A6700),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      chipText,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF2B2B2B),
+                      ),
+                    ),
+                    if (online) ...[
+                      const SizedBox(width: 10),
+                      InkWell(
+                        onTap: syncing ? null : sync.syncAll,
+                        borderRadius: BorderRadius.circular(999),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color:
+                                syncing
+                                    ? AppTheme.primary.withValues(alpha: 0.65)
+                                    : AppTheme.primary,
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child:
+                              syncing
+                                  ? const SizedBox(
+                                    width: 14,
+                                    height: 14,
+                                    child: Center(
+                                      child: AppLoadingDots(
+                                        color: Colors.white,
+                                        dotSize: 3.4,
+                                        gap: 1.8,
+                                      ),
+                                    ),
+                                  )
+                                  : const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.sync_rounded,
+                                        size: 13,
+                                        color: Colors.white,
+                                      ),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        'Sync now',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               ),
-            ),
-            if (online)
-              TextButton(
-                onPressed: sync.syncAll,
-                child: const Text('Sync now'),
-              ),
-          ],
+            ],
+          ),
         ),
       );
     });
