@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../core/auth/auth_service.dart';
 import '../../../core/network/api_error.dart';
 import '../../../core/sync/sync_service.dart';
+import '../../../core/ui/app_snackbar.dart';
 import '../../../routes/app_routes.dart';
 
 class AuthController extends GetxController {
@@ -33,11 +34,7 @@ class AuthController extends GetxController {
     } on DioException catch (error) {
       final message = extractApiErrorMessage(error, fallback: 'Sign-in failed');
 
-      Get.snackbar(
-        'Sign-in failed',
-        message,
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      AppSnackbar.error('Sign-in failed', message);
     } finally {
       isSigningIn.value = false;
     }
@@ -69,19 +66,11 @@ class AuthController extends GetxController {
 
       Get.offAllNamed(AppRoutes.signIn);
 
-      Get.snackbar(
-        'Account created',
-        'Sign in to continue.',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      AppSnackbar.ok('Account created', 'Sign in to continue.');
     } on DioException catch (error) {
       final message = extractApiErrorMessage(error, fallback: 'Sign-up failed');
 
-      Get.snackbar(
-        'Sign-up failed',
-        message,
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      AppSnackbar.error('Sign-up failed', message);
     } finally {
       isSigningUp.value = false;
     }
@@ -94,6 +83,7 @@ class AuthController extends GetxController {
       await _authService.signOut();
 
       Get.offAllNamed(AppRoutes.signIn);
+      AppSnackbar.warning('Signed out', 'Your session has ended.');
     } finally {
       isSigningOut.value = false;
     }
