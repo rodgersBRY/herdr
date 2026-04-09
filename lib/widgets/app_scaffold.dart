@@ -21,10 +21,7 @@ class AppScaffold extends StatelessWidget {
           (ctrl) => Scaffold(
             body: Column(
               children: [
-                SafeArea(
-                  bottom: false,
-                  child: const _ConnectivityStrip(),
-                ),
+                SafeArea(bottom: false, child: const _ConnectivityStrip()),
                 Expanded(
                   child: IndexedStack(
                     index: ctrl.currentIndex,

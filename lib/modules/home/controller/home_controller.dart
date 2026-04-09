@@ -13,7 +13,8 @@ class HomeController extends GetxController {
   final Rx<FarmAlerts> alerts = const FarmAlerts.empty().obs;
   final RxDouble todayMilk = 0.0.obs;
 
-  String get todayDisplay => DateFormat('EEE, dd MMM yyyy').format(DateTime.now());
+  String get todayDisplay =>
+      DateFormat('EEE, dd MMM yyyy').format(DateTime.now());
   String get currentMonth => DateFormat('yyyy-MM').format(DateTime.now());
 
   @override

@@ -18,7 +18,10 @@ class HealthRepository {
   Dio get _dio => Get.find<ApiClient>().dio;
   bool get _isOnline => Get.find<NetworkStatusService>().isOnline.value;
 
-  Future<List<HealthRecord>> getForCow(String cowLocalId, {bool refresh = true}) async {
+  Future<List<HealthRecord>> getForCow(
+    String cowLocalId, {
+    bool refresh = true,
+  }) async {
     final cow = await _cowRepository.getById(cowLocalId);
     if (refresh && _isOnline && cow?.serverId != null) {
       await syncPending();
@@ -61,9 +64,10 @@ class HealthRepository {
 
   Future<HealthRecord> update(HealthRecord record) async {
     final updated = record.copyWith(
-      syncAction: record.serverId == null
-          ? AppConstants.syncCreate
-          : AppConstants.syncUpdate,
+      syncAction:
+          record.serverId == null
+              ? AppConstants.syncCreate
+              : AppConstants.syncUpdate,
       updatedAt: DateTime.now().toIso8601String(),
       lastError: null,
     );
@@ -100,8 +104,9 @@ class HealthRepository {
       queryParameters: {'limit': AppConstants.defaultPageSize, 'page': 1},
     );
 
-    final items = ((response.data as Map<String, dynamic>)['data'] as List<dynamic>)
-        .cast<Map<String, dynamic>>();
+    final items =
+        ((response.data as Map<String, dynamic>)['data'] as List<dynamic>)
+            .cast<Map<String, dynamic>>();
     for (final item in items) {
       final db = await _db.db;
       final existing = await db.query(
@@ -112,7 +117,10 @@ class HealthRepository {
       );
       final merged = HealthRecord.fromApi(
         item,
-        localId: existing.isNotEmpty ? existing.first['local_id'] as String : _uuid.v4(),
+        localId:
+            existing.isNotEmpty
+                ? existing.first['local_id'] as String
+                : _uuid.v4(),
         cowLocalId: cowLocalId,
         syncAction: AppConstants.syncSynced,
         lastError: null,
@@ -128,7 +136,8 @@ class HealthRepository {
     }
 
     try {
-      if (record.serverId == null || record.syncAction == AppConstants.syncCreate) {
+      if (record.serverId == null ||
+          record.syncAction == AppConstants.syncCreate) {
         final response = await _dio.post(
           '/cows/${cow!.serverId}/health-records',
           data: record.toCreatePayload(),

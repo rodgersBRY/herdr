@@ -34,7 +34,10 @@ class MilkEntryController extends GetxController {
             .where((cow) => cow.status == AppConstants.statusActive)
             .toList(),
       );
-      final logs = await _milkRepository.getForDate(selectedDate.value);
+      final logs = await _milkRepository.getForDate(
+        selectedDate.value,
+        period: selectedPeriod.value,
+      );
       logsByCow.assignAll({for (final log in logs) log.cowLocalId: log});
       litresInputs.assignAll({
         for (final log in logs) log.cowLocalId: log.litres,
@@ -46,6 +49,11 @@ class MilkEntryController extends GetxController {
 
   Future<void> changeDate(DateTime date) async {
     selectedDate.value = DateFormat('yyyy-MM-dd').format(date);
+    await loadData();
+  }
+
+  Future<void> changePeriod(String period) async {
+    selectedPeriod.value = period;
     await loadData();
   }
 

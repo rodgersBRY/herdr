@@ -51,8 +51,9 @@ class AddSaleController extends GetxController {
       final now = DateTime.now().toIso8601String();
 
       final sale = MilkSale(
-        saleDate:
-            DateFormat('yyyy-MM-dd').format(values['saleDate'] as DateTime),
+        saleDate: DateFormat(
+          'yyyy-MM-dd',
+        ).format(values['saleDate'] as DateTime),
         litresSold: litres,
         pricePerLitre: price,
         totalAmount: litres * price,

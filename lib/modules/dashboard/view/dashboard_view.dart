@@ -12,112 +12,117 @@ class DashboardView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<DashboardController>(
       init: DashboardController(),
-      builder: (ctrl) => Scaffold(
-        appBar: AppBar(
-          title: const Text('Dashboard'),
-          actions: [
-            IconButton(
-              onPressed: ctrl.loadStats,
-              icon: const Icon(Icons.refresh),
-            ),
-          ],
-        ),
-        body: Obx(() {
-          if (ctrl.isLoading.value) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          final summary = ctrl.summary.value;
-
-          return RefreshIndicator(
-            onRefresh: ctrl.loadStats,
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                _MetricHero(
-                  monthLabel: ctrl.monthLabel,
-                  income: summary.monthlyMilkIncome,
-                  expenses: summary.monthlyExpenses,
-                  profit: summary.profit,
-                ),
-                const SizedBox(height: 16),
-                _GridSection(
-                  title: 'Herd status',
-                  children: [
-                    _MetricCard(
-                      label: 'Active cows',
-                      value: '${summary.totalActiveCows}',
-                      icon: Icons.pets,
-                      color: AppTheme.primary,
-                    ),
-                    _MetricCard(
-                      label: 'Pregnant',
-                      value: '${summary.pregnantCows}',
-                      icon: Icons.event_available,
-                      color: Colors.purple,
-                    ),
-                    _MetricCard(
-                      label: 'In milk',
-                      value: '${summary.cowsInMilk}',
-                      icon: Icons.water_drop,
-                      color: Colors.blue,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                _GridSection(
-                  title: 'Production',
-                  children: [
-                    _MetricCard(
-                      label: 'Today',
-                      value: '${summary.todayTotalMilk.toStringAsFixed(1)} L',
-                      icon: Icons.today,
-                      color: AppTheme.primary,
-                    ),
-                    _MetricCard(
-                      label: ctrl.monthLabel,
-                      value:
-                          '${summary.monthlyMilkTotal.toStringAsFixed(1)} L',
-                      icon: Icons.calendar_month,
-                      color: Colors.teal,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                _RankingCard(
-                  title: 'Top milk output',
-                  rows: summary.milkPerCow
-                      .where((row) => row.totalLitres > 0)
-                      .take(5)
-                      .map(
-                        (row) => _RankingRow(
-                          title: row.tagNumber,
-                          subtitle: row.breed,
-                          value: '${row.totalLitres.toStringAsFixed(1)} L',
-                        ),
-                      )
-                      .toList(),
-                ),
-                const SizedBox(height: 16),
-                _RankingCard(
-                  title: 'Highest expenses',
-                  rows: summary.expensePerCow
-                      .where((row) => row.totalExpenses > 0)
-                      .take(5)
-                      .map(
-                        (row) => _RankingRow(
-                          title: row.tagNumber,
-                          subtitle: row.breed,
-                          value: AppFormatters.money(row.totalExpenses),
-                        ),
-                      )
-                      .toList(),
+      builder:
+          (ctrl) => Scaffold(
+            appBar: AppBar(
+              title: const Text('Dashboard'),
+              actions: [
+                IconButton(
+                  onPressed: ctrl.loadStats,
+                  icon: const Icon(Icons.refresh),
                 ),
               ],
             ),
-          );
-        }),
-      ),
+            body: Obx(() {
+              if (ctrl.isLoading.value) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              final summary = ctrl.summary.value;
+
+              return RefreshIndicator(
+                onRefresh: ctrl.loadStats,
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    _MetricHero(
+                      monthLabel: ctrl.monthLabel,
+                      income: summary.monthlyMilkIncome,
+                      expenses: summary.monthlyExpenses,
+                      profit: summary.profit,
+                    ),
+                    const SizedBox(height: 16),
+                    _GridSection(
+                      title: 'Herd status',
+                      children: [
+                        _MetricCard(
+                          label: 'Active cows',
+                          value: '${summary.totalActiveCows}',
+                          icon: Icons.pets,
+                          color: AppTheme.primary,
+                        ),
+                        _MetricCard(
+                          label: 'Pregnant',
+                          value: '${summary.pregnantCows}',
+                          icon: Icons.event_available,
+                          color: Colors.purple,
+                        ),
+                        _MetricCard(
+                          label: 'In milk',
+                          value: '${summary.cowsInMilk}',
+                          icon: Icons.water_drop,
+                          color: Colors.blue,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    _GridSection(
+                      title: 'Production',
+                      children: [
+                        _MetricCard(
+                          label: 'Today',
+                          value:
+                              '${summary.todayTotalMilk.toStringAsFixed(1)} L',
+                          icon: Icons.today,
+                          color: AppTheme.primary,
+                        ),
+                        _MetricCard(
+                          label: ctrl.monthLabel,
+                          value:
+                              '${summary.monthlyMilkTotal.toStringAsFixed(1)} L',
+                          icon: Icons.calendar_month,
+                          color: Colors.teal,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    _RankingCard(
+                      title: 'Top milk output',
+                      rows:
+                          summary.milkPerCow
+                              .where((row) => row.totalLitres > 0)
+                              .take(5)
+                              .map(
+                                (row) => _RankingRow(
+                                  title: row.tagNumber,
+                                  subtitle: row.breed,
+                                  value:
+                                      '${row.totalLitres.toStringAsFixed(1)} L',
+                                ),
+                              )
+                              .toList(),
+                    ),
+                    const SizedBox(height: 16),
+                    _RankingCard(
+                      title: 'Highest expenses',
+                      rows:
+                          summary.expensePerCow
+                              .where((row) => row.totalExpenses > 0)
+                              .take(5)
+                              .map(
+                                (row) => _RankingRow(
+                                  title: row.tagNumber,
+                                  subtitle: row.breed,
+                                  value: AppFormatters.money(row.totalExpenses),
+                                ),
+                              )
+                              .toList(),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ),
     );
   }
 }
@@ -232,10 +237,9 @@ class _GridSection extends StatelessWidget {
       children: [
         Text(
           title,
-          style: Theme.of(context)
-              .textTheme
-              .titleMedium
-              ?.copyWith(fontWeight: FontWeight.w700),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 10),
         GridView.count(
@@ -329,16 +333,12 @@ class _RankingCard extends StatelessWidget {
         children: [
           Text(
             title,
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(fontWeight: FontWeight.w700),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 12),
-          if (rows.isEmpty)
-            const Text('No records yet.')
-          else
-            ...rows,
+          if (rows.isEmpty) const Text('No records yet.') else ...rows,
         ],
       ),
     );
@@ -366,8 +366,14 @@ class _RankingRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
-                Text(subtitle, style: const TextStyle(color: AppTheme.textSecondary)),
+                Text(
+                  title,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+                Text(
+                  subtitle,
+                  style: const TextStyle(color: AppTheme.textSecondary),
+                ),
               ],
             ),
           ),

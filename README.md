@@ -1,16 +1,46 @@
-# cattle_manager
+# Cattle Manager Client
 
-A new Flutter project.
+Flutter mobile client for the Cattle Manager backend.
 
-## Getting Started
+## Environment Setup
 
-This project is a starting point for a Flutter application.
+This app now reads runtime config from `.env`.
 
-A few resources to get you started if this is your first Flutter project:
+1. Copy `.env.example` to `.env`
+2. Set your API URL and optional local auth defaults
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Example:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```env
+API_BASE_URL=http://localhost:8888/v1
+AUTH_EMAIL=
+AUTH_PASSWORD=
+```
+
+Do not commit real secrets in `.env`. It is ignored by git.
+
+## Run
+
+```bash
+flutter pub get
+flutter run
+```
+
+## Auth Flow
+
+- `POST /auth/sign-up`
+- `POST /auth/sign-in`
+- `POST /auth/refresh` (automatic on 401)
+- `GET /auth/me` (session restore/profile fetch)
+
+All protected API requests include `Authorization: Bearer <access_token>`.
+
+## Backend Feature Endpoints Used
+
+- Cows: list, get single, create, update status/details
+- Milk logs: list by cow/date, create, update
+- Health records: list, create, update
+- Breeding records: list, create
+- Expenses: list, create
+- Milk sales: list, create
+- Alerts + Dashboard summaries

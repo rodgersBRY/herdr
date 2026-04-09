@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 
+import '../auth/auth_service.dart';
 import '../../modules/breeding/repository/breeding_repository.dart';
 import '../../modules/cows/repository/cow_repository.dart';
 import '../../modules/expenses/repository/expense_repository.dart';
@@ -15,25 +16,37 @@ class SyncService extends GetxService {
   final BreedingRepository _breedingRepository = BreedingRepository();
   final ExpenseRepository _expenseRepository = ExpenseRepository();
   final SalesRepository _salesRepository = SalesRepository();
+  final AuthService _authService = Get.find<AuthService>();
 
-  Worker? _worker;
+  Worker? _networkWorker;
+  Worker? _authWorker;
 
   Future<SyncService> init() async {
     final network = Get.find<NetworkStatusService>();
-    
-    _worker = ever<bool>(network.isOnline, (online) {
-      if (online) {
+
+    _networkWorker = ever<bool>(network.isOnline, (online) {
+      if (online && _authService.isAuthenticated.value) {
         syncAll();
       }
     });
 
-    if (network.isOnline.value) {
+    _authWorker = ever<bool>(_authService.isAuthenticated, (authenticated) {
+      if (authenticated && network.isOnline.value) {
+        syncAll();
+      }
+    });
+
+    if (network.isOnline.value && _authService.isAuthenticated.value) {
       await syncAll();
     }
     return this;
   }
 
   Future<void> syncAll() async {
+    if (!_authService.isAuthenticated.value) {
+      return;
+    }
+
     await _cowRepository.syncPending();
     await _milkRepository.syncPending();
     await _healthRepository.syncPending();
@@ -44,7 +57,8 @@ class SyncService extends GetxService {
 
   @override
   void onClose() {
-    _worker?.dispose();
+    _networkWorker?.dispose();
+    _authWorker?.dispose();
     super.onClose();
   }
 }

@@ -21,7 +21,7 @@ class DatabaseHelper {
 
     return openDatabase(
       path,
-      version: 3,
+      version: 4,
       onConfigure: (db) async => db.execute('PRAGMA foreign_keys = ON'),
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
@@ -72,7 +72,7 @@ class DatabaseHelper {
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
         last_error TEXT,
-        UNIQUE(cow_local_id, log_date),
+        UNIQUE(cow_local_id, log_date, period),
         FOREIGN KEY(cow_local_id) REFERENCES cows(local_id) ON DELETE RESTRICT
       )
     ''');

@@ -13,107 +13,107 @@ class CowsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<CowsController>(
       init: CowsController(),
-      builder: (ctrl) => Scaffold(
-        appBar: AppBar(
-          title: const Text('Herd'),
-          actions: [
-            IconButton(
-              onPressed: ctrl.loadCows,
-              icon: const Icon(Icons.refresh),
-            ),
-          ],
-        ),
-        floatingActionButton: FloatingActionButton(
-          heroTag: 'cows_add_fab',
-          onPressed: () async {
-            await Get.toNamed(AppRoutes.addCow);
-            await ctrl.loadCows();
-          },
-          child: const Icon(Icons.add),
-        ),
-        body: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              margin: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF0F5D3A), Color(0xFF2E7D32)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+      builder:
+          (ctrl) => Scaffold(
+            appBar: AppBar(
+              title: const Text('Herd'),
+              actions: [
+                IconButton(
+                  onPressed: ctrl.loadCows,
+                  icon: const Icon(Icons.refresh),
                 ),
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: Obx(
-                () => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Farm register',
-                      style: TextStyle(color: Colors.white70),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      '${ctrl.cows.length} cows tracked',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: ctrl.searchCtrl,
-                      decoration: InputDecoration(
-                        hintText: 'Search by tag, breed, source or status',
-                        prefixIcon: const Icon(Icons.search),
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(18),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              ],
             ),
-            Expanded(
-              child: Obx(() {
-                if (ctrl.isLoading.value) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (ctrl.filtered.isEmpty) {
-                  return Center(
-                    child: Text(
-                      ctrl.searchCtrl.text.isEmpty
-                          ? 'No cows saved yet.'
-                          : 'No cows match that search.',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyLarge
-                          ?.copyWith(color: AppTheme.textSecondary),
+            floatingActionButton: FloatingActionButton(
+              heroTag: 'cows_add_fab',
+              onPressed: () async {
+                await Get.toNamed(AppRoutes.addCow);
+                await ctrl.loadCows();
+              },
+              child: const Icon(Icons.add),
+            ),
+            body: Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF0F5D3A), Color(0xFF2E7D32)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                  );
-                }
-
-                return RefreshIndicator(
-                  onRefresh: ctrl.loadCows,
-                  child: ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                    itemCount: ctrl.filtered.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 10),
-                    itemBuilder: (_, index) => _CowCard(cow: ctrl.filtered[index]),
+                    borderRadius: BorderRadius.circular(24),
                   ),
-                );
-              }),
+                  child: Obx(
+                    () => Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Farm register',
+                          style: TextStyle(color: Colors.white70),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          '${ctrl.cows.length} cows tracked',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: ctrl.searchCtrl,
+                          decoration: InputDecoration(
+                            hintText: 'Search by tag, breed, source or status',
+                            prefixIcon: const Icon(Icons.search),
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(18),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Obx(() {
+                    if (ctrl.isLoading.value) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (ctrl.filtered.isEmpty) {
+                      return Center(
+                        child: Text(
+                          ctrl.searchCtrl.text.isEmpty
+                              ? 'No cows saved yet.'
+                              : 'No cows match that search.',
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(color: AppTheme.textSecondary),
+                        ),
+                      );
+                    }
+
+                    return RefreshIndicator(
+                      onRefresh: ctrl.loadCows,
+                      child: ListView.separated(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                        itemCount: ctrl.filtered.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 10),
+                        itemBuilder:
+                            (_, index) => _CowCard(cow: ctrl.filtered[index]),
+                      ),
+                    );
+                  }),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
     );
   }
 }
@@ -209,7 +209,10 @@ class _CowCard extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: statusColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(999),

@@ -77,9 +77,10 @@ class CowRepository {
 
   Future<Cow> update(Cow cow) async {
     final updated = cow.copyWith(
-      syncAction: cow.serverId == null
-          ? AppConstants.syncCreate
-          : AppConstants.syncUpdate,
+      syncAction:
+          cow.serverId == null
+              ? AppConstants.syncCreate
+              : AppConstants.syncUpdate,
       updatedAt: DateTime.now().toIso8601String(),
       lastError: null,
     );
@@ -126,13 +127,14 @@ class CowRepository {
   }
 
   Future<void> _refreshFromApi() async {
-    final response = await _dio.get('/cows', queryParameters: {
-      'limit': AppConstants.defaultPageSize,
-      'page': 1,
-    });
+    final response = await _dio.get(
+      '/cows',
+      queryParameters: {'limit': AppConstants.defaultPageSize, 'page': 1},
+    );
 
-    final items = ((response.data as Map<String, dynamic>)['data'] as List<dynamic>)
-        .cast<Map<String, dynamic>>();
+    final items =
+        ((response.data as Map<String, dynamic>)['data'] as List<dynamic>)
+            .cast<Map<String, dynamic>>();
 
     for (final item in items) {
       await _mergeApiCow(item);
@@ -144,13 +146,13 @@ class CowRepository {
       return;
     }
     final response = await _dio.get('/cows/${cow.serverId}');
-    await _mergeApiCow(response.data as Map<String, dynamic>, localId: cow.localId);
+    await _mergeApiCow(
+      response.data as Map<String, dynamic>,
+      localId: cow.localId,
+    );
   }
 
-  Future<void> _mergeApiCow(
-    Map<String, dynamic> map, {
-    String? localId,
-  }) async {
+  Future<void> _mergeApiCow(Map<String, dynamic> map, {String? localId}) async {
     final db = await _db.db;
     final serverId = map['id'] as String;
     final existing = await db.query(
@@ -162,7 +164,11 @@ class CowRepository {
 
     final merged = Cow.fromApi(
       map,
-      localId: localId ?? (existing.isNotEmpty ? existing.first['local_id'] as String : _uuid.v4()),
+      localId:
+          localId ??
+          (existing.isNotEmpty
+              ? existing.first['local_id'] as String
+              : _uuid.v4()),
       syncAction: AppConstants.syncSynced,
       lastError: null,
     );
@@ -211,9 +217,10 @@ class CowRepository {
     } on DioException catch (error) {
       await _upsertDb(
         cow.copyWith(
-          syncAction: cow.syncAction == AppConstants.syncCreate
-              ? AppConstants.syncCreate
-              : AppConstants.syncUpdate,
+          syncAction:
+              cow.syncAction == AppConstants.syncCreate
+                  ? AppConstants.syncCreate
+                  : AppConstants.syncUpdate,
           lastError: error.message,
           updatedAt: DateTime.now().toIso8601String(),
         ),

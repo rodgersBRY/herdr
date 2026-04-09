@@ -83,16 +83,16 @@ class DashboardSummary {
   });
 
   const DashboardSummary.empty()
-      : totalActiveCows = 0,
-        pregnantCows = 0,
-        cowsInMilk = 0,
-        todayTotalMilk = 0,
-        monthlyMilkTotal = 0,
-        monthlyExpenses = 0,
-        monthlyMilkIncome = 0,
-        profit = 0,
-        milkPerCow = const [],
-        expensePerCow = const [];
+    : totalActiveCows = 0,
+      pregnantCows = 0,
+      cowsInMilk = 0,
+      todayTotalMilk = 0,
+      monthlyMilkTotal = 0,
+      monthlyExpenses = 0,
+      monthlyMilkIncome = 0,
+      profit = 0,
+      milkPerCow = const [],
+      expensePerCow = const [];
 
   factory DashboardSummary.fromApi(Map<String, dynamic> map) =>
       _$DashboardSummaryFromJson(map);

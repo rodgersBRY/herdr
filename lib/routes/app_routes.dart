@@ -1,5 +1,7 @@
 abstract class AppRoutes {
   static const main = '/';
+  static const signIn = '/auth/sign-in';
+  static const signUp = '/auth/sign-up';
   static const cowsList = '/cows';
   static const addCow = '/cows/add';
   static const editCow = '/cows/edit';

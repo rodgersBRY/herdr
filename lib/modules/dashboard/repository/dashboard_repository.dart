@@ -13,8 +13,10 @@ class DashboardRepository {
 
   Future<DashboardSummary> getSummary(String month) async {
     if (_isOnline) {
-      final response =
-          await _api.dio.get('/dashboard', queryParameters: {'month': month});
+      final response = await _api.dio.get(
+        '/dashboard',
+        queryParameters: {'month': month},
+      );
       return DashboardSummary.fromApi(response.data as Map<String, dynamic>);
     }
     return _getOfflineSummary(month);
@@ -24,24 +26,34 @@ class DashboardRepository {
     final db = await _db.db;
     final today = DateTime.now().toIso8601String().split('T').first;
     final recentThreshold =
-        DateTime.now().subtract(const Duration(days: 7)).toIso8601String().split('T').first;
+        DateTime.now()
+            .subtract(const Duration(days: 7))
+            .toIso8601String()
+            .split('T')
+            .first;
 
     final active = await db.rawQuery(
       "SELECT COUNT(*) AS count FROM cows WHERE status = 'active'",
     );
-    final pregnant = await db.rawQuery('''
+    final pregnant = await db.rawQuery(
+      '''
       SELECT COUNT(DISTINCT br.cow_local_id) AS count
       FROM breeding_records br
       JOIN cows c ON c.local_id = br.cow_local_id
       WHERE c.status = 'active'
         AND br.event_type IN ('service', 'pregnancy_check')
         AND br.expected_calving_date > ?
-    ''', [today]);
-    final inMilk = await db.rawQuery('''
+    ''',
+      [today],
+    );
+    final inMilk = await db.rawQuery(
+      '''
       SELECT COUNT(DISTINCT cow_local_id) AS count
       FROM milk_logs
       WHERE log_date >= ?
-    ''', [recentThreshold]);
+    ''',
+      [recentThreshold],
+    );
     final todayMilk = await db.rawQuery(
       'SELECT COALESCE(SUM(litres), 0) AS total FROM milk_logs WHERE log_date = ?',
       [today],
@@ -59,7 +71,8 @@ class DashboardRepository {
       ['$month%'],
     );
 
-    final milkPerCowRows = await db.rawQuery('''
+    final milkPerCowRows = await db.rawQuery(
+      '''
       SELECT c.server_id AS cowId, c.tag_number AS tagNumber, c.breed,
              COALESCE(SUM(ml.litres), 0) AS totalLitres
       FROM cows c
@@ -68,9 +81,12 @@ class DashboardRepository {
       WHERE c.status = 'active'
       GROUP BY c.local_id, c.server_id, c.tag_number, c.breed
       ORDER BY totalLitres DESC
-    ''', ['$month%']);
+    ''',
+      ['$month%'],
+    );
 
-    final expensePerCowRows = await db.rawQuery('''
+    final expensePerCowRows = await db.rawQuery(
+      '''
       SELECT c.server_id AS cowId, c.tag_number AS tagNumber, c.breed,
              COALESCE(SUM(el.amount), 0) AS totalExpenses
       FROM cows c
@@ -79,7 +95,9 @@ class DashboardRepository {
       WHERE c.status = 'active'
       GROUP BY c.local_id, c.server_id, c.tag_number, c.breed
       ORDER BY totalExpenses DESC
-    ''', ['$month%']);
+    ''',
+      ['$month%'],
+    );
 
     final incomeValue = (monthlyIncome.first['total'] as num?)?.toDouble() ?? 0;
     final expenseValue =
@@ -90,17 +108,20 @@ class DashboardRepository {
       pregnantCows: int.parse('${pregnant.first['count']}'),
       cowsInMilk: int.parse('${inMilk.first['count']}'),
       todayTotalMilk: (todayMilk.first['total'] as num?)?.toDouble() ?? 0,
-      monthlyMilkTotal:
-          (monthlyMilk.first['total'] as num?)?.toDouble() ?? 0,
+      monthlyMilkTotal: (monthlyMilk.first['total'] as num?)?.toDouble() ?? 0,
       monthlyExpenses: expenseValue,
       monthlyMilkIncome: incomeValue,
       profit: incomeValue - expenseValue,
-      milkPerCow: milkPerCowRows
-          .map((row) => CowMilkStat.fromApi(Map<String, dynamic>.from(row)))
-          .toList(),
-      expensePerCow: expensePerCowRows
-          .map((row) => CowExpenseStat.fromApi(Map<String, dynamic>.from(row)))
-          .toList(),
+      milkPerCow:
+          milkPerCowRows
+              .map((row) => CowMilkStat.fromApi(Map<String, dynamic>.from(row)))
+              .toList(),
+      expensePerCow:
+          expensePerCowRows
+              .map(
+                (row) => CowExpenseStat.fromApi(Map<String, dynamic>.from(row)),
+              )
+              .toList(),
     );
   }
 }

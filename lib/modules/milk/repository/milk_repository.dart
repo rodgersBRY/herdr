@@ -18,19 +18,25 @@ class MilkRepository {
   Dio get _dio => Get.find<ApiClient>().dio;
   bool get _isOnline => Get.find<NetworkStatusService>().isOnline.value;
 
-  Future<List<MilkLog>> getForDate(String date) async {
+  Future<List<MilkLog>> getForDate(String date, {String? period}) async {
     final db = await _db.db;
+    final wherePeriod = period == null ? '' : 'AND ml.period = ?';
+    final args = period == null ? [date] : [date, period];
     final maps = await db.rawQuery('''
       SELECT ml.*, c.tag_number AS cow_tag_number, c.breed AS cow_breed
       FROM milk_logs ml
       JOIN cows c ON c.local_id = ml.cow_local_id
       WHERE ml.log_date = ?
+      $wherePeriod
       ORDER BY c.tag_number ASC
-    ''', [date]);
+    ''', args);
     return maps.map(MilkLog.fromDb).toList();
   }
 
-  Future<List<MilkLog>> getForCow(String cowLocalId, {bool refresh = true}) async {
+  Future<List<MilkLog>> getForCow(
+    String cowLocalId, {
+    bool refresh = true,
+  }) async {
     final cow = await _cowRepository.getById(cowLocalId);
     if (refresh && _isOnline && cow?.serverId != null) {
       await syncPending();
@@ -42,17 +48,21 @@ class MilkRepository {
       'milk_logs',
       where: 'cow_local_id = ?',
       whereArgs: [cowLocalId],
-      orderBy: 'log_date DESC, created_at DESC',
+      orderBy: 'log_date DESC, period ASC, created_at DESC',
     );
     return maps.map(MilkLog.fromDb).toList();
   }
 
-  Future<MilkLog?> getForCowAndDate(String cowLocalId, String date) async {
+  Future<MilkLog?> getForCowAndDatePeriod(
+    String cowLocalId,
+    String date,
+    String period,
+  ) async {
     final db = await _db.db;
     final maps = await db.query(
       'milk_logs',
-      where: 'cow_local_id = ? AND log_date = ?',
-      whereArgs: [cowLocalId, date],
+      where: 'cow_local_id = ? AND log_date = ? AND period = ?',
+      whereArgs: [cowLocalId, date, period],
       limit: 1,
     );
     if (maps.isEmpty) {
@@ -62,7 +72,11 @@ class MilkRepository {
   }
 
   Future<MilkLog> upsert(MilkLog log) async {
-    final existing = await getForCowAndDate(log.cowLocalId, log.logDate);
+    final existing = await getForCowAndDatePeriod(
+      log.cowLocalId,
+      log.logDate,
+      log.period,
+    );
     final now = DateTime.now().toIso8601String();
     final local = (existing ?? log).copyWith(
       localId: existing?.localId ?? _uuid.v4(),
@@ -72,10 +86,12 @@ class MilkRepository {
       litres: log.litres,
       period: log.period,
       notes: log.notes,
-      syncAction: existing?.serverId == null
-          ? AppConstants.syncCreate
-          : AppConstants.syncUpdate,
-      createdAt: existing?.createdAt ?? (log.createdAt.isEmpty ? now : log.createdAt),
+      syncAction:
+          existing?.serverId == null
+              ? AppConstants.syncCreate
+              : AppConstants.syncUpdate,
+      createdAt:
+          existing?.createdAt ?? (log.createdAt.isEmpty ? now : log.createdAt),
       updatedAt: now,
       lastError: null,
     );
@@ -84,7 +100,12 @@ class MilkRepository {
 
     if (_isOnline) {
       await _syncLog(local);
-      return (await getForCowAndDate(log.cowLocalId, log.logDate)) ?? local;
+      return (await getForCowAndDatePeriod(
+            log.cowLocalId,
+            log.logDate,
+            log.period,
+          )) ??
+          local;
     }
 
     return local;
@@ -110,14 +131,17 @@ class MilkRepository {
 
   Future<List<String>> getCowsWithoutLogToday(String date) async {
     final db = await _db.db;
-    final maps = await db.rawQuery('''
+    final maps = await db.rawQuery(
+      '''
       SELECT c.local_id FROM cows c
       WHERE c.status = ?
       AND c.local_id NOT IN (
         SELECT cow_local_id FROM milk_logs WHERE log_date = ?
       )
       ORDER BY c.tag_number ASC
-    ''', [AppConstants.statusActive, date]);
+    ''',
+      [AppConstants.statusActive, date],
+    );
     return maps.map((map) => map['local_id'] as String).toList();
   }
 
@@ -148,8 +172,9 @@ class MilkRepository {
       queryParameters: {'limit': AppConstants.defaultPageSize, 'page': 1},
     );
 
-    final items = ((response.data as Map<String, dynamic>)['data'] as List<dynamic>)
-        .cast<Map<String, dynamic>>();
+    final items =
+        ((response.data as Map<String, dynamic>)['data'] as List<dynamic>)
+            .cast<Map<String, dynamic>>();
 
     for (final item in items) {
       final db = await _db.db;
@@ -161,7 +186,10 @@ class MilkRepository {
       );
       final merged = MilkLog.fromApi(
         item,
-        localId: existing.isNotEmpty ? existing.first['local_id'] as String : _uuid.v4(),
+        localId:
+            existing.isNotEmpty
+                ? existing.first['local_id'] as String
+                : _uuid.v4(),
         cowLocalId: cowLocalId,
         syncAction: AppConstants.syncSynced,
         lastError: null,

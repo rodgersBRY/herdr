@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AppConstants {
   static const String _configuredBaseUrl = String.fromEnvironment(
@@ -6,7 +7,20 @@ class AppConstants {
     defaultValue: '',
   );
 
+  static String _dotenv(String key) {
+    try {
+      return dotenv.get(key, fallback: '');
+    } catch (_) {
+      return '';
+    }
+  }
+
   static String get baseUrl {
+    final fromDotEnv = _dotenv('API_BASE_URL').trim();
+    if (fromDotEnv.isNotEmpty) {
+      return fromDotEnv;
+    }
+
     if (_configuredBaseUrl.isNotEmpty) {
       return _configuredBaseUrl;
     }
@@ -47,6 +61,7 @@ class AppConstants {
   static const String breedingCalving = 'calving';
 
   static const String milkMorning = 'morning';
+  static const String milkAfternoon = 'afternoon';
   static const String milkEvening = 'evening';
 
   static const String expenseTreatment = 'treatment';

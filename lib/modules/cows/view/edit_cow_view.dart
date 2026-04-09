@@ -21,10 +21,7 @@ class EditCowView extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         child: FormBuilder(
           key: ctrl.formKey,
-          initialValue: {
-            'breed': cow.breed,
-            'status': cow.status,
-          },
+          initialValue: {'breed': cow.breed, 'status': cow.status},
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -38,12 +35,15 @@ class EditCowView extends StatelessWidget {
               FormBuilderDropdown<String>(
                 name: 'breed',
                 decoration: const InputDecoration(labelText: 'Breed'),
-                items: AppConstants.breeds
-                    .map((breed) => DropdownMenuItem(
-                          value: breed,
-                          child: Text(breed),
-                        ))
-                    .toList(),
+                items:
+                    AppConstants.breeds
+                        .map(
+                          (breed) => DropdownMenuItem(
+                            value: breed,
+                            child: Text(breed),
+                          ),
+                        )
+                        .toList(),
                 validator: FormBuilderValidators.required(),
               ),
               const SizedBox(height: 16),
@@ -70,13 +70,14 @@ class EditCowView extends StatelessWidget {
               Obx(
                 () => ElevatedButton(
                   onPressed: ctrl.isSaving.value ? null : ctrl.save,
-                  child: ctrl.isSaving.value
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Update Cow'),
+                  child:
+                      ctrl.isSaving.value
+                          ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                          : const Text('Update Cow'),
                 ),
               ),
             ],
@@ -102,16 +103,12 @@ class _StaticField extends StatelessWidget {
         children: [
           Text(
             label,
-            style: Theme.of(context)
-                .textTheme
-                .labelMedium
-                ?.copyWith(color: Colors.black54),
+            style: Theme.of(
+              context,
+            ).textTheme.labelMedium?.copyWith(color: Colors.black54),
           ),
           const SizedBox(height: 4),
-          Text(
-            value,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          Text(value, style: Theme.of(context).textTheme.titleMedium),
         ],
       ),
     );

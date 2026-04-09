@@ -50,22 +50,21 @@ class BreedingRecord {
       _$BreedingRecordFromJson(json);
 
   factory BreedingRecord.fromDb(Map<String, dynamic> map) => BreedingRecord(
-        localId: map['local_id'] as String,
-        serverId: map['server_id'] as String?,
-        syncAction:
-            (map['sync_action'] as String?) ?? AppConstants.syncSynced,
-        cowLocalId: map['cow_local_id'] as String,
-        eventType: map['event_type'] as String,
-        eventDate: map['event_date'] as String,
-        expectedCalvingDate: map['expected_calving_date'] as String?,
-        calfTagNumber: map['calf_tag_number'] as String?,
-        calfBreed: map['calf_breed'] as String?,
-        calfDateOfBirth: map['calf_date_of_birth'] as String?,
-        notes: map['notes'] as String?,
-        createdAt: map['created_at'] as String,
-        updatedAt: map['updated_at'] as String,
-        lastError: map['last_error'] as String?,
-      );
+    localId: map['local_id'] as String,
+    serverId: map['server_id'] as String?,
+    syncAction: (map['sync_action'] as String?) ?? AppConstants.syncSynced,
+    cowLocalId: map['cow_local_id'] as String,
+    eventType: map['event_type'] as String,
+    eventDate: map['event_date'] as String,
+    expectedCalvingDate: map['expected_calving_date'] as String?,
+    calfTagNumber: map['calf_tag_number'] as String?,
+    calfBreed: map['calf_breed'] as String?,
+    calfDateOfBirth: map['calf_date_of_birth'] as String?,
+    notes: map['notes'] as String?,
+    createdAt: map['created_at'] as String,
+    updatedAt: map['updated_at'] as String,
+    lastError: map['last_error'] as String?,
+  );
 
   factory BreedingRecord.fromApi(
     Map<String, dynamic> map, {
@@ -73,45 +72,44 @@ class BreedingRecord {
     required String cowLocalId,
     required String syncAction,
     String? lastError,
-  }) =>
-      BreedingRecord.fromJson(map).copyWith(
-        localId: localId,
-        cowLocalId: cowLocalId,
-        syncAction: syncAction,
-        updatedAt: DateTime.now().toIso8601String(),
-        lastError: lastError,
-      );
+  }) => BreedingRecord.fromJson(map).copyWith(
+    localId: localId,
+    cowLocalId: cowLocalId,
+    syncAction: syncAction,
+    updatedAt: DateTime.now().toIso8601String(),
+    lastError: lastError,
+  );
 
   Map<String, dynamic> toDbMap() => {
-        'local_id': localId,
-        'server_id': serverId,
-        'sync_action': syncAction,
-        'cow_local_id': cowLocalId,
-        'event_type': eventType,
-        'event_date': eventDate,
-        'expected_calving_date': expectedCalvingDate,
-        'calf_tag_number': calfTagNumber,
-        'calf_breed': calfBreed,
-        'calf_date_of_birth': calfDateOfBirth,
-        'notes': notes,
-        'created_at': createdAt,
-        'updated_at': updatedAt,
-        'last_error': lastError,
-      };
+    'local_id': localId,
+    'server_id': serverId,
+    'sync_action': syncAction,
+    'cow_local_id': cowLocalId,
+    'event_type': eventType,
+    'event_date': eventDate,
+    'expected_calving_date': expectedCalvingDate,
+    'calf_tag_number': calfTagNumber,
+    'calf_breed': calfBreed,
+    'calf_date_of_birth': calfDateOfBirth,
+    'notes': notes,
+    'created_at': createdAt,
+    'updated_at': updatedAt,
+    'last_error': lastError,
+  };
 
   Map<String, dynamic> toCreatePayload() => {
-        'eventType': eventType,
-        'eventDate': eventDate,
-        if (expectedCalvingDate != null && expectedCalvingDate!.isNotEmpty)
-          'expectedCalvingDate': expectedCalvingDate,
-        if (notes != null && notes!.isNotEmpty) 'notes': notes,
-        if (eventType == AppConstants.breedingCalving)
-          'calf': {
-            'tagNumber': calfTagNumber,
-            'breed': calfBreed,
-            'dateOfBirth': calfDateOfBirth ?? eventDate,
-          },
-      };
+    'event_type': eventType,
+    'event_date': eventDate,
+    if (expectedCalvingDate != null && expectedCalvingDate!.isNotEmpty)
+      'expected_calving_date': expectedCalvingDate,
+    if (notes != null && notes!.isNotEmpty) 'notes': notes,
+    if (eventType == AppConstants.breedingCalving)
+      'calf': {
+        'tag_number': calfTagNumber,
+        'breed': calfBreed,
+        'date_of_birth': calfDateOfBirth ?? eventDate,
+      },
+  };
 
   Map<String, dynamic> toJson() => _$BreedingRecordToJson(this);
 
@@ -130,21 +128,20 @@ class BreedingRecord {
     String? createdAt,
     String? updatedAt,
     String? lastError,
-  }) =>
-      BreedingRecord(
-        localId: localId ?? this.localId,
-        serverId: serverId ?? this.serverId,
-        syncAction: syncAction ?? this.syncAction,
-        cowLocalId: cowLocalId ?? this.cowLocalId,
-        eventType: eventType ?? this.eventType,
-        eventDate: eventDate ?? this.eventDate,
-        expectedCalvingDate: expectedCalvingDate ?? this.expectedCalvingDate,
-        calfTagNumber: calfTagNumber ?? this.calfTagNumber,
-        calfBreed: calfBreed ?? this.calfBreed,
-        calfDateOfBirth: calfDateOfBirth ?? this.calfDateOfBirth,
-        notes: notes ?? this.notes,
-        createdAt: createdAt ?? this.createdAt,
-        updatedAt: updatedAt ?? this.updatedAt,
-        lastError: lastError,
-      );
+  }) => BreedingRecord(
+    localId: localId ?? this.localId,
+    serverId: serverId ?? this.serverId,
+    syncAction: syncAction ?? this.syncAction,
+    cowLocalId: cowLocalId ?? this.cowLocalId,
+    eventType: eventType ?? this.eventType,
+    eventDate: eventDate ?? this.eventDate,
+    expectedCalvingDate: expectedCalvingDate ?? this.expectedCalvingDate,
+    calfTagNumber: calfTagNumber ?? this.calfTagNumber,
+    calfBreed: calfBreed ?? this.calfBreed,
+    calfDateOfBirth: calfDateOfBirth ?? this.calfDateOfBirth,
+    notes: notes ?? this.notes,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    lastError: lastError,
+  );
 }

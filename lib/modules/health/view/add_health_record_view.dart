@@ -81,13 +81,14 @@ class AddHealthRecordView extends StatelessWidget {
               Obx(
                 () => ElevatedButton(
                   onPressed: ctrl.isSaving.value ? null : ctrl.save,
-                  child: ctrl.isSaving.value
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Save Record'),
+                  child:
+                      ctrl.isSaving.value
+                          ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                          : const Text('Save Record'),
                 ),
               ),
             ],
@@ -128,9 +129,10 @@ class _AddHealthCtrl extends GetxController {
           description: values['description'] as String,
           drugUsed: values['drugUsed'] as String?,
           recordDate: fmt.format(values['recordDate'] as DateTime),
-          nextDueDate: values['nextDueDate'] != null
-              ? fmt.format(values['nextDueDate'] as DateTime)
-              : null,
+          nextDueDate:
+              values['nextDueDate'] != null
+                  ? fmt.format(values['nextDueDate'] as DateTime)
+                  : null,
           notes: values['notes'] as String?,
           createdAt: now,
           updatedAt: now,

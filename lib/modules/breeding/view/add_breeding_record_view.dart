@@ -30,8 +30,10 @@ class AddBreedingRecordView extends StatelessWidget {
                   name: 'eventType',
                   initialValue: AppConstants.breedingService,
                   decoration: const InputDecoration(labelText: 'Event type'),
-                  onChanged: (value) =>
-                      ctrl.eventType.value = value ?? AppConstants.breedingService,
+                  onChanged:
+                      (value) =>
+                          ctrl.eventType.value =
+                              value ?? AppConstants.breedingService,
                   items: const [
                     DropdownMenuItem(
                       value: AppConstants.breedingHeat,
@@ -64,28 +66,32 @@ class AddBreedingRecordView extends StatelessWidget {
                 FormBuilderDateTimePicker(
                   name: 'expectedCalvingDate',
                   inputType: InputType.date,
-                  decoration:
-                      const InputDecoration(labelText: 'Expected calving date'),
+                  decoration: const InputDecoration(
+                    labelText: 'Expected calving date',
+                  ),
                 ),
                 if (ctrl.eventType.value == AppConstants.breedingCalving) ...[
                   const SizedBox(height: 16),
                   FormBuilderTextField(
                     name: 'calfTagNumber',
-                    decoration: const InputDecoration(labelText: 'Calf tag number'),
+                    decoration: const InputDecoration(
+                      labelText: 'Calf tag number',
+                    ),
                     validator: FormBuilderValidators.required(),
                   ),
                   const SizedBox(height: 16),
                   FormBuilderDropdown<String>(
                     name: 'calfBreed',
                     decoration: const InputDecoration(labelText: 'Calf breed'),
-                    items: AppConstants.breeds
-                        .map(
-                          (breed) => DropdownMenuItem(
-                            value: breed,
-                            child: Text(breed),
-                          ),
-                        )
-                        .toList(),
+                    items:
+                        AppConstants.breeds
+                            .map(
+                              (breed) => DropdownMenuItem(
+                                value: breed,
+                                child: Text(breed),
+                              ),
+                            )
+                            .toList(),
                     validator: FormBuilderValidators.required(),
                   ),
                 ],
@@ -99,13 +105,14 @@ class AddBreedingRecordView extends StatelessWidget {
                 Obx(
                   () => ElevatedButton(
                     onPressed: ctrl.isSaving.value ? null : ctrl.save,
-                    child: ctrl.isSaving.value
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Text('Save Record'),
+                    child:
+                        ctrl.isSaving.value
+                            ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                            : const Text('Save Record'),
                   ),
                 ),
               ],
@@ -146,14 +153,16 @@ class _AddBreedingCtrl extends GetxController {
           cowLocalId: cow.localId,
           eventType: values['eventType'] as String,
           eventDate: fmt.format(values['eventDate'] as DateTime),
-          expectedCalvingDate: values['expectedCalvingDate'] != null
-              ? fmt.format(values['expectedCalvingDate'] as DateTime)
-              : null,
+          expectedCalvingDate:
+              values['expectedCalvingDate'] != null
+                  ? fmt.format(values['expectedCalvingDate'] as DateTime)
+                  : null,
           calfTagNumber: values['calfTagNumber'] as String?,
           calfBreed: values['calfBreed'] as String?,
-          calfDateOfBirth: values['eventDate'] != null
-              ? fmt.format(values['eventDate'] as DateTime)
-              : null,
+          calfDateOfBirth:
+              values['eventDate'] != null
+                  ? fmt.format(values['eventDate'] as DateTime)
+                  : null,
           notes: values['notes'] as String?,
           createdAt: now,
           updatedAt: now,

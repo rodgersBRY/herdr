@@ -79,12 +79,13 @@ class SalesRepository {
   }
 
   Future<void> _refreshFromApi({required int limit}) async {
-    final response = await _dio.get('/milk-sales', queryParameters: {
-      'limit': limit,
-      'page': 1,
-    });
-    final items = ((response.data as Map<String, dynamic>)['data'] as List<dynamic>)
-        .cast<Map<String, dynamic>>();
+    final response = await _dio.get(
+      '/milk-sales',
+      queryParameters: {'limit': limit, 'page': 1},
+    );
+    final items =
+        ((response.data as Map<String, dynamic>)['data'] as List<dynamic>)
+            .cast<Map<String, dynamic>>();
     for (final item in items) {
       final db = await _db.db;
       final existing = await db.query(
@@ -95,7 +96,10 @@ class SalesRepository {
       );
       final merged = MilkSale.fromApi(
         item,
-        localId: existing.isNotEmpty ? existing.first['local_id'] as String : _uuid.v4(),
+        localId:
+            existing.isNotEmpty
+                ? existing.first['local_id'] as String
+                : _uuid.v4(),
         syncAction: AppConstants.syncSynced,
         lastError: null,
       );
@@ -105,7 +109,10 @@ class SalesRepository {
 
   Future<void> _syncSale(MilkSale sale) async {
     try {
-      final response = await _dio.post('/milk-sales', data: sale.toCreatePayload());
+      final response = await _dio.post(
+        '/milk-sales',
+        data: sale.toCreatePayload(),
+      );
       final synced = MilkSale.fromApi(
         response.data as Map<String, dynamic>,
         localId: sale.localId,

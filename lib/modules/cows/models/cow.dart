@@ -64,69 +64,67 @@ class Cow {
   String get displayName => tagNumber;
 
   factory Cow.fromDb(Map<String, dynamic> map) => Cow(
-        localId: map['local_id'] as String,
-        serverId: map['server_id'] as String?,
-        syncAction:
-            (map['sync_action'] as String?) ?? AppConstants.syncSynced,
-        tagNumber: map['tag_number'] as String,
-        breed: map['breed'] as String,
-        dateOfBirth: map['date_of_birth'] as String,
-        source: map['source'] as String,
-        status:
-            (map['status'] as String?) ?? AppConstants.statusActive,
-        createdAt: map['created_at'] as String,
-        updatedAt: map['updated_at'] as String,
-        lastError: map['last_error'] as String?,
-      );
+    localId: map['local_id'] as String,
+    serverId: map['server_id'] as String?,
+    syncAction: (map['sync_action'] as String?) ?? AppConstants.syncSynced,
+    tagNumber: map['tag_number'] as String,
+    breed: map['breed'] as String,
+    dateOfBirth: map['date_of_birth'] as String,
+    source: map['source'] as String,
+    status: (map['status'] as String?) ?? AppConstants.statusActive,
+    createdAt: map['created_at'] as String,
+    updatedAt: map['updated_at'] as String,
+    lastError: map['last_error'] as String?,
+  );
 
   factory Cow.fromApi(
     Map<String, dynamic> map, {
     required String localId,
     required String syncAction,
     String? lastError,
-  }) =>
-      Cow(
-        localId: localId,
-        serverId: _stringFromDynamic(map['id']),
-        syncAction: syncAction,
-        tagNumber: _stringFromDynamic(map['tagNumber'] ?? map['tag_number']) ?? '',
-        breed: _stringFromDynamic(map['breed']) ?? '',
-        dateOfBirth:
-            _stringFromDynamic(map['dateOfBirth'] ?? map['date_of_birth']) ?? '',
-        source: _stringFromDynamic(map['source']) ?? AppConstants.sourceBought,
-        status: _stringFromDynamic(map['status']) ?? AppConstants.statusActive,
-        createdAt:
-            _stringFromDynamic(map['createdAt'] ?? map['created_at']) ??
-                DateTime.now().toIso8601String(),
-        updatedAt: DateTime.now().toIso8601String(),
-        lastError: lastError,
-      );
+  }) => Cow(
+    localId: localId,
+    serverId: _stringFromDynamic(map['id']),
+    syncAction: syncAction,
+    tagNumber: _stringFromDynamic(map['tagNumber'] ?? map['tag_number']) ?? '',
+    breed: _stringFromDynamic(map['breed']) ?? '',
+    dateOfBirth:
+        _stringFromDynamic(map['dateOfBirth'] ?? map['date_of_birth']) ?? '',
+    source: _stringFromDynamic(map['source']) ?? AppConstants.sourceBought,
+    status: _stringFromDynamic(map['status']) ?? AppConstants.statusActive,
+    createdAt:
+        _stringFromDynamic(map['createdAt'] ?? map['created_at']) ??
+        DateTime.now().toIso8601String(),
+    updatedAt: DateTime.now().toIso8601String(),
+    lastError: lastError,
+  );
 
   Map<String, dynamic> toDbMap() => {
-        'local_id': localId,
-        'server_id': serverId,
-        'sync_action': syncAction,
-        'tag_number': tagNumber,
-        'breed': breed,
-        'date_of_birth': dateOfBirth,
-        'source': source,
-        'status': status,
-        'created_at': createdAt,
-        'updated_at': updatedAt,
-        'last_error': lastError,
-      };
+    'local_id': localId,
+    'server_id': serverId,
+    'sync_action': syncAction,
+    'tag_number': tagNumber,
+    'breed': breed,
+    'date_of_birth': dateOfBirth,
+    'source': source,
+    'status': status,
+    'created_at': createdAt,
+    'updated_at': updatedAt,
+    'last_error': lastError,
+  };
 
   Map<String, dynamic> toCreatePayload() => {
-        'tagNumber': tagNumber,
-        'breed': breed,
-        'dateOfBirth': dateOfBirth,
-        'source': source,
-      };
+    'tag_number': tagNumber,
+    'breed': breed,
+    'date_of_birth': dateOfBirth,
+    'source': source,
+  };
 
   Map<String, dynamic> toUpdatePayload() => {
-        'breed': breed,
-        'status': status,
-      };
+    'tag_number': tagNumber,
+    'breed': breed,
+    'status': status,
+  };
 
   Map<String, dynamic> toJson() => _$CowToJson(this);
 
@@ -142,18 +140,17 @@ class Cow {
     String? createdAt,
     String? updatedAt,
     String? lastError,
-  }) =>
-      Cow(
-        localId: localId ?? this.localId,
-        serverId: serverId ?? this.serverId,
-        syncAction: syncAction ?? this.syncAction,
-        tagNumber: tagNumber ?? this.tagNumber,
-        breed: breed ?? this.breed,
-        dateOfBirth: dateOfBirth ?? this.dateOfBirth,
-        source: source ?? this.source,
-        status: status ?? this.status,
-        createdAt: createdAt ?? this.createdAt,
-        updatedAt: updatedAt ?? this.updatedAt,
-        lastError: lastError,
-      );
+  }) => Cow(
+    localId: localId ?? this.localId,
+    serverId: serverId ?? this.serverId,
+    syncAction: syncAction ?? this.syncAction,
+    tagNumber: tagNumber ?? this.tagNumber,
+    breed: breed ?? this.breed,
+    dateOfBirth: dateOfBirth ?? this.dateOfBirth,
+    source: source ?? this.source,
+    status: status ?? this.status,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    lastError: lastError,
+  );
 }

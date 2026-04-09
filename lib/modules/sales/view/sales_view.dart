@@ -15,116 +15,135 @@ class SalesView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<SalesController>(
       init: SalesController(),
-      builder: (ctrl) => Scaffold(
-        appBar: AppBar(
-          title: const Text('Milk Sales'),
-          actions: [
-            IconButton(onPressed: ctrl.loadSales, icon: const Icon(Icons.refresh)),
-          ],
-        ),
-        floatingActionButton: FloatingActionButton(
-          heroTag: 'sales_add_fab',
-          onPressed: () async {
-            await Get.toNamed(AppRoutes.addSale);
-            await ctrl.loadSales();
-          },
-          child: const Icon(Icons.add),
-        ),
-        body: Obx(() {
-          if (ctrl.isLoading.value) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      builder:
+          (ctrl) => Scaffold(
+            appBar: AppBar(
+              title: const Text('Milk Sales'),
+              actions: [
+                IconButton(
+                  onPressed: ctrl.loadSales,
+                  icon: const Icon(Icons.refresh),
+                ),
+              ],
+            ),
+            floatingActionButton: FloatingActionButton(
+              heroTag: 'sales_add_fab',
+              onPressed: () async {
+                await Get.toNamed(AppRoutes.addSale);
+                await ctrl.loadSales();
+              },
+              child: const Icon(Icons.add),
+            ),
+            body: Obx(() {
+              if (ctrl.isLoading.value) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-          return Column(
-            children: [
-              Container(
-                width: double.infinity,
-                margin: const EdgeInsets.all(16),
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF5B3417), Color(0xFFAB6B2E)],
-                  ),
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Sales total',
-                      style: TextStyle(color: Colors.white70),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      AppFormatters.money(ctrl.totalAmount),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 30,
-                        fontWeight: FontWeight.w800,
+              return Column(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF5B3417), Color(0xFFAB6B2E)],
                       ),
+                      borderRadius: BorderRadius.circular(24),
                     ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: ctrl.sales.isEmpty
-                    ? const Center(child: Text('No milk sales recorded yet.'))
-                    : RefreshIndicator(
-                        onRefresh: ctrl.loadSales,
-                        child: ListView.separated(
-                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                          itemCount: ctrl.sales.length,
-                          separatorBuilder: (_, __) => const SizedBox(height: 10),
-                          itemBuilder: (_, index) {
-                            final sale = ctrl.sales[index];
-                            return Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(22),
-                              ),
-                              child: Row(
-                                children: [
-                                  const CircleAvatar(
-                                    backgroundColor: Color(0xFFFDEAD9),
-                                    child: Icon(Icons.sell, color: Color(0xFFAB6B2E)),
-                                  ),
-                                  const SizedBox(width: 14),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Sales total',
+                          style: TextStyle(color: Colors.white70),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          AppFormatters.money(ctrl.totalAmount),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 30,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child:
+                        ctrl.sales.isEmpty
+                            ? const Center(
+                              child: Text('No milk sales recorded yet.'),
+                            )
+                            : RefreshIndicator(
+                              onRefresh: ctrl.loadSales,
+                              child: ListView.separated(
+                                padding: const EdgeInsets.fromLTRB(
+                                  16,
+                                  0,
+                                  16,
+                                  16,
+                                ),
+                                itemCount: ctrl.sales.length,
+                                separatorBuilder:
+                                    (_, __) => const SizedBox(height: 10),
+                                itemBuilder: (_, index) {
+                                  final sale = ctrl.sales[index];
+                                  return Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(22),
+                                    ),
+                                    child: Row(
                                       children: [
-                                        Text(
-                                          '${sale.litresSold.toStringAsFixed(1)} L @ ${AppFormatters.money(sale.pricePerLitre)}',
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.w700,
+                                        const CircleAvatar(
+                                          backgroundColor: Color(0xFFFDEAD9),
+                                          child: Icon(
+                                            Icons.sell,
+                                            color: Color(0xFFAB6B2E),
                                           ),
                                         ),
-                                        const SizedBox(height: 4),
+                                        const SizedBox(width: 14),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                '${sale.litresSold.toStringAsFixed(1)} L @ ${AppFormatters.money(sale.pricePerLitre)}',
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                '${AppFormatters.prettyDate(sale.saleDate)}${sale.buyer != null && sale.buyer!.isNotEmpty ? ' • ${sale.buyer}' : ''}',
+                                                style: const TextStyle(
+                                                  color: AppTheme.textSecondary,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                         Text(
-                                          '${AppFormatters.prettyDate(sale.saleDate)}${sale.buyer != null && sale.buyer!.isNotEmpty ? ' • ${sale.buyer}' : ''}',
+                                          AppFormatters.money(sale.totalAmount),
                                           style: const TextStyle(
-                                            color: AppTheme.textSecondary,
+                                            fontWeight: FontWeight.w800,
                                           ),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                  Text(
-                                    AppFormatters.money(sale.totalAmount),
-                                    style: const TextStyle(fontWeight: FontWeight.w800),
-                                  ),
-                                ],
+                                  );
+                                },
                               ),
-                            );
-                          },
-                        ),
-                      ),
-              ),
-            ],
-          );
-        }),
-      ),
+                            ),
+                  ),
+                ],
+              );
+            }),
+          ),
     );
   }
 }
@@ -159,8 +178,9 @@ class AddSaleView extends StatelessWidget {
                   labelText: 'Litres sold',
                   suffixText: 'L',
                 ),
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(),
                   FormBuilderValidators.numeric(),
@@ -174,8 +194,9 @@ class AddSaleView extends StatelessWidget {
                   labelText: 'Price per litre',
                   prefixText: 'KES ',
                 ),
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(),
                   FormBuilderValidators.numeric(),
@@ -197,13 +218,14 @@ class AddSaleView extends StatelessWidget {
               Obx(
                 () => ElevatedButton(
                   onPressed: ctrl.isSaving.value ? null : ctrl.save,
-                  child: ctrl.isSaving.value
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Save Sale'),
+                  child:
+                      ctrl.isSaving.value
+                          ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                          : const Text('Save Sale'),
                 ),
               ),
             ],

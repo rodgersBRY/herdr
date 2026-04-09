@@ -19,7 +19,10 @@ class BreedingRepository {
   Dio get _dio => Get.find<ApiClient>().dio;
   bool get _isOnline => Get.find<NetworkStatusService>().isOnline.value;
 
-  Future<List<BreedingRecord>> getForCow(String cowLocalId, {bool refresh = true}) async {
+  Future<List<BreedingRecord>> getForCow(
+    String cowLocalId, {
+    bool refresh = true,
+  }) async {
     final cow = await _cowRepository.getById(cowLocalId);
     if (refresh && _isOnline && cow?.serverId != null) {
       await syncPending();
@@ -80,8 +83,9 @@ class BreedingRepository {
       queryParameters: {'limit': AppConstants.defaultPageSize, 'page': 1},
     );
 
-    final items = ((response.data as Map<String, dynamic>)['data'] as List<dynamic>)
-        .cast<Map<String, dynamic>>();
+    final items =
+        ((response.data as Map<String, dynamic>)['data'] as List<dynamic>)
+            .cast<Map<String, dynamic>>();
     for (final item in items) {
       final db = await _db.db;
       final existing = await db.query(
@@ -92,7 +96,10 @@ class BreedingRepository {
       );
       final merged = BreedingRecord.fromApi(
         item,
-        localId: existing.isNotEmpty ? existing.first['local_id'] as String : _uuid.v4(),
+        localId:
+            existing.isNotEmpty
+                ? existing.first['local_id'] as String
+                : _uuid.v4(),
         cowLocalId: cowLocalId,
         syncAction: AppConstants.syncSynced,
         lastError: null,
@@ -115,7 +122,8 @@ class BreedingRepository {
 
       final payload = response.data as Map<String, dynamic>;
       final breedingMap =
-          (payload['breedingRecord'] ?? payload['breeding_record']) as Map<String, dynamic>;
+          (payload['breedingRecord'] ?? payload['breeding_record'])
+              as Map<String, dynamic>;
       final synced = BreedingRecord.fromApi(
         breedingMap,
         localId: record.localId,
@@ -148,21 +156,25 @@ class BreedingRepository {
       lastError: null,
     );
 
-    final existing = draftCalf.serverId == null
-        ? const <Map<String, Object?>>[]
-        : await db.query(
-            'cows',
-            where: 'server_id = ?',
-            whereArgs: [draftCalf.serverId],
-            limit: 1,
-          );
+    final existing =
+        draftCalf.serverId == null
+            ? const <Map<String, Object?>>[]
+            : await db.query(
+              'cows',
+              where: 'server_id = ?',
+              whereArgs: [draftCalf.serverId],
+              limit: 1,
+            );
 
-    final calf = existing.isNotEmpty
-        ? draftCalf.copyWith(
-            localId: existing.first['local_id'] as String,
-            createdAt: existing.first['created_at'] as String? ?? draftCalf.createdAt,
-          )
-        : draftCalf;
+    final calf =
+        existing.isNotEmpty
+            ? draftCalf.copyWith(
+              localId: existing.first['local_id'] as String,
+              createdAt:
+                  existing.first['created_at'] as String? ??
+                  draftCalf.createdAt,
+            )
+            : draftCalf;
 
     final updated = await db.update(
       'cows',

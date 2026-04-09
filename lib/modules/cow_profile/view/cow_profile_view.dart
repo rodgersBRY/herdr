@@ -17,58 +17,70 @@ class CowProfileView extends StatelessWidget {
     return DefaultTabController(
       length: 5,
       child: GetBuilder<CowProfileController>(
-        builder: (_) => Scaffold(
-          appBar: AppBar(
-            title: Text(ctrl.cow.displayName),
-            actions: [
-              IconButton(
-                onPressed: ctrl.loadAll,
-                icon: const Icon(Icons.refresh),
-              ),
-              PopupMenuButton<String>(
-                onSelected: (value) async {
-                  if (value == 'edit') {
-                    await Get.toNamed(AppRoutes.editCow, arguments: ctrl.cow);
-                    await ctrl.loadAll();
-                  } else if (value == 'sold') {
-                    await ctrl.markAsInactive(AppConstants.statusSold);
-                  } else if (value == 'dead') {
-                    await ctrl.markAsInactive(AppConstants.statusDead);
-                  }
-                },
-                itemBuilder: (_) => const [
-                  PopupMenuItem(value: 'edit', child: Text('Edit cow')),
-                  PopupMenuItem(value: 'sold', child: Text('Mark as sold')),
-                  PopupMenuItem(value: 'dead', child: Text('Mark as dead')),
-                ],
-              ),
-              const SizedBox(width: 8),
-            ],
-            bottom: const TabBar(
-              isScrollable: true,
-              tabs: [
-                Tab(text: 'Overview'),
-                Tab(text: 'Milk'),
-                Tab(text: 'Health'),
-                Tab(text: 'Breeding'),
-                Tab(text: 'Expenses'),
-              ],
-            ),
-          ),
-          body: Obx(
-            () => ctrl.isLoading.value
-                ? const Center(child: CircularProgressIndicator())
-                : TabBarView(
-                    children: [
-                      _OverviewTab(ctrl: ctrl),
-                      _MilkTab(ctrl: ctrl),
-                      _HealthTab(ctrl: ctrl),
-                      _BreedingTab(ctrl: ctrl),
-                      _ExpenseTab(ctrl: ctrl),
-                    ],
+        builder:
+            (_) => Scaffold(
+              appBar: AppBar(
+                title: Text(ctrl.cow.displayName),
+                actions: [
+                  IconButton(
+                    onPressed: ctrl.loadAll,
+                    icon: const Icon(Icons.refresh),
                   ),
-          ),
-        ),
+                  PopupMenuButton<String>(
+                    onSelected: (value) async {
+                      if (value == 'edit') {
+                        await Get.toNamed(
+                          AppRoutes.editCow,
+                          arguments: ctrl.cow,
+                        );
+                        await ctrl.loadAll();
+                      } else if (value == 'sold') {
+                        await ctrl.markAsInactive(AppConstants.statusSold);
+                      } else if (value == 'dead') {
+                        await ctrl.markAsInactive(AppConstants.statusDead);
+                      }
+                    },
+                    itemBuilder:
+                        (_) => const [
+                          PopupMenuItem(value: 'edit', child: Text('Edit cow')),
+                          PopupMenuItem(
+                            value: 'sold',
+                            child: Text('Mark as sold'),
+                          ),
+                          PopupMenuItem(
+                            value: 'dead',
+                            child: Text('Mark as dead'),
+                          ),
+                        ],
+                  ),
+                  const SizedBox(width: 8),
+                ],
+                bottom: const TabBar(
+                  isScrollable: true,
+                  tabs: [
+                    Tab(text: 'Overview'),
+                    Tab(text: 'Milk'),
+                    Tab(text: 'Health'),
+                    Tab(text: 'Breeding'),
+                    Tab(text: 'Expenses'),
+                  ],
+                ),
+              ),
+              body: Obx(
+                () =>
+                    ctrl.isLoading.value
+                        ? const Center(child: CircularProgressIndicator())
+                        : TabBarView(
+                          children: [
+                            _OverviewTab(ctrl: ctrl),
+                            _MilkTab(ctrl: ctrl),
+                            _HealthTab(ctrl: ctrl),
+                            _BreedingTab(ctrl: ctrl),
+                            _ExpenseTab(ctrl: ctrl),
+                          ],
+                        ),
+              ),
+            ),
       ),
     );
   }
@@ -129,7 +141,10 @@ class _OverviewTab extends StatelessWidget {
           title: 'Details',
           children: [
             _InfoRow('Breed', cow.breed),
-            _InfoRow('Date of birth', AppFormatters.prettyDate(cow.dateOfBirth)),
+            _InfoRow(
+              'Date of birth',
+              AppFormatters.prettyDate(cow.dateOfBirth),
+            ),
             _InfoRow('Source', cow.source),
             _InfoRow('Status', cow.status),
           ],
@@ -142,7 +157,10 @@ class _OverviewTab extends StatelessWidget {
             _InfoRow('Health records', '${ctrl.healthRecords.length}'),
             _InfoRow('Breeding records', '${ctrl.breedingRecords.length}'),
             _InfoRow('Expense entries', '${ctrl.expenses.length}'),
-            _InfoRow('Total expenses', AppFormatters.money(ctrl.totalExpenses.value)),
+            _InfoRow(
+              'Total expenses',
+              AppFormatters.money(ctrl.totalExpenses.value),
+            ),
           ],
         ),
       ],
@@ -171,8 +189,7 @@ class _MilkTab extends StatelessWidget {
           icon: Icons.water_drop,
           color: Colors.blue,
           title: '${log.litres.toStringAsFixed(1)} L',
-          subtitle:
-              '${AppFormatters.prettyDate(log.logDate)} • ${log.period}',
+          subtitle: '${AppFormatters.prettyDate(log.logDate)} • ${log.period}',
         );
       },
     );
@@ -247,7 +264,10 @@ class _BreedingTab extends StatelessWidget {
           _Fab(
             heroTag: 'cow_profile_breeding_empty_fab',
             onPressed: () async {
-              await Get.toNamed(AppRoutes.addBreedingRecord, arguments: ctrl.cow);
+              await Get.toNamed(
+                AppRoutes.addBreedingRecord,
+                arguments: ctrl.cow,
+              );
               await ctrl.loadAll();
             },
           ),
@@ -387,10 +407,9 @@ class _SectionCard extends StatelessWidget {
           children: [
             Text(
               title,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w700),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 12),
             ...children,
@@ -495,10 +514,9 @@ class _EmptyTab extends StatelessWidget {
     return Center(
       child: Text(
         message,
-        style: Theme.of(context)
-            .textTheme
-            .bodyLarge
-            ?.copyWith(color: AppTheme.textSecondary),
+        style: Theme.of(
+          context,
+        ).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
       ),
     );
   }

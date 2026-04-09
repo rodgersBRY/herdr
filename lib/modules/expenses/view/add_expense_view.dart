@@ -56,8 +56,9 @@ class AddExpenseView extends StatelessWidget {
                   labelText: 'Amount',
                   prefixText: 'KES ',
                 ),
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(),
                   FormBuilderValidators.numeric(),
@@ -82,13 +83,14 @@ class AddExpenseView extends StatelessWidget {
               Obx(
                 () => ElevatedButton(
                   onPressed: ctrl.isSaving.value ? null : ctrl.save,
-                  child: ctrl.isSaving.value
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Save Expense'),
+                  child:
+                      ctrl.isSaving.value
+                          ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                          : const Text('Save Expense'),
                 ),
               ),
             ],
@@ -126,8 +128,9 @@ class _AddExpenseCtrl extends GetxController {
           cowLocalId: cow.localId,
           category: values['category'] as String,
           amount: double.parse(values['amount'] as String),
-          expenseDate:
-              DateFormat('yyyy-MM-dd').format(values['expenseDate'] as DateTime),
+          expenseDate: DateFormat(
+            'yyyy-MM-dd',
+          ).format(values['expenseDate'] as DateTime),
           notes: values['notes'] as String?,
           createdAt: now,
           updatedAt: now,

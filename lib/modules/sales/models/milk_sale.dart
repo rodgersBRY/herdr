@@ -73,68 +73,66 @@ class MilkSale {
       _$MilkSaleFromJson(json);
 
   factory MilkSale.fromDb(Map<String, dynamic> map) => MilkSale(
-        localId: map['local_id'] as String,
-        serverId: map['server_id'] as String?,
-        syncAction:
-            (map['sync_action'] as String?) ?? AppConstants.syncSynced,
-        saleDate: map['sale_date'] as String,
-        litresSold: (map['litres_sold'] as num).toDouble(),
-        pricePerLitre: (map['price_per_litre'] as num).toDouble(),
-        totalAmount: (map['total_amount'] as num).toDouble(),
-        buyer: map['buyer'] as String?,
-        notes: map['notes'] as String?,
-        createdAt: map['created_at'] as String,
-        updatedAt: map['updated_at'] as String,
-        lastError: map['last_error'] as String?,
-      );
+    localId: map['local_id'] as String,
+    serverId: map['server_id'] as String?,
+    syncAction: (map['sync_action'] as String?) ?? AppConstants.syncSynced,
+    saleDate: map['sale_date'] as String,
+    litresSold: (map['litres_sold'] as num).toDouble(),
+    pricePerLitre: (map['price_per_litre'] as num).toDouble(),
+    totalAmount: (map['total_amount'] as num).toDouble(),
+    buyer: map['buyer'] as String?,
+    notes: map['notes'] as String?,
+    createdAt: map['created_at'] as String,
+    updatedAt: map['updated_at'] as String,
+    lastError: map['last_error'] as String?,
+  );
 
   factory MilkSale.fromApi(
     Map<String, dynamic> map, {
     required String localId,
     required String syncAction,
     String? lastError,
-  }) =>
-      MilkSale(
-        localId: localId,
-        serverId: _stringFromDynamic(map['id']),
-        syncAction: syncAction,
-        saleDate: _stringFromDynamic(map['saleDate'] ?? map['sale_date']) ?? '',
-        litresSold: _doubleFromJson(map['litresSold'] ?? map['litres_sold']),
-        pricePerLitre:
-            _doubleFromJson(map['pricePerLitre'] ?? map['price_per_litre']),
-        totalAmount: _doubleFromJson(map['totalAmount'] ?? map['total_amount']),
-        buyer: _stringFromDynamic(map['buyer']),
-        notes: _stringFromDynamic(map['notes']),
-        createdAt:
-            _stringFromDynamic(map['createdAt'] ?? map['created_at']) ??
-                DateTime.now().toIso8601String(),
-        updatedAt: DateTime.now().toIso8601String(),
-        lastError: lastError,
-      );
+  }) => MilkSale(
+    localId: localId,
+    serverId: _stringFromDynamic(map['id']),
+    syncAction: syncAction,
+    saleDate: _stringFromDynamic(map['saleDate'] ?? map['sale_date']) ?? '',
+    litresSold: _doubleFromJson(map['litresSold'] ?? map['litres_sold']),
+    pricePerLitre: _doubleFromJson(
+      map['pricePerLitre'] ?? map['price_per_litre'],
+    ),
+    totalAmount: _doubleFromJson(map['totalAmount'] ?? map['total_amount']),
+    buyer: _stringFromDynamic(map['buyer']),
+    notes: _stringFromDynamic(map['notes']),
+    createdAt:
+        _stringFromDynamic(map['createdAt'] ?? map['created_at']) ??
+        DateTime.now().toIso8601String(),
+    updatedAt: DateTime.now().toIso8601String(),
+    lastError: lastError,
+  );
 
   Map<String, dynamic> toDbMap() => {
-        'local_id': localId,
-        'server_id': serverId,
-        'sync_action': syncAction,
-        'sale_date': saleDate,
-        'litres_sold': litresSold,
-        'price_per_litre': pricePerLitre,
-        'total_amount': totalAmount,
-        'buyer': buyer,
-        'notes': notes,
-        'created_at': createdAt,
-        'updated_at': updatedAt,
-        'last_error': lastError,
-      };
+    'local_id': localId,
+    'server_id': serverId,
+    'sync_action': syncAction,
+    'sale_date': saleDate,
+    'litres_sold': litresSold,
+    'price_per_litre': pricePerLitre,
+    'total_amount': totalAmount,
+    'buyer': buyer,
+    'notes': notes,
+    'created_at': createdAt,
+    'updated_at': updatedAt,
+    'last_error': lastError,
+  };
 
   Map<String, dynamic> toCreatePayload() => {
-        'saleDate': saleDate,
-        'litresSold': litresSold,
-        'pricePerLitre': pricePerLitre,
-        'totalAmount': totalAmount,
-        if (buyer != null && buyer!.isNotEmpty) 'buyer': buyer,
-        if (notes != null && notes!.isNotEmpty) 'notes': notes,
-      };
+    'sale_date': saleDate,
+    'litres_sold': litresSold,
+    'price_per_litre': pricePerLitre,
+    if (buyer != null && buyer!.isNotEmpty) 'buyer': buyer,
+    if (notes != null && notes!.isNotEmpty) 'notes': notes,
+  };
 
   Map<String, dynamic> toJson() => _$MilkSaleToJson(this);
 
@@ -151,19 +149,18 @@ class MilkSale {
     String? createdAt,
     String? updatedAt,
     String? lastError,
-  }) =>
-      MilkSale(
-        localId: localId ?? this.localId,
-        serverId: serverId ?? this.serverId,
-        syncAction: syncAction ?? this.syncAction,
-        saleDate: saleDate ?? this.saleDate,
-        litresSold: litresSold ?? this.litresSold,
-        pricePerLitre: pricePerLitre ?? this.pricePerLitre,
-        totalAmount: totalAmount ?? this.totalAmount,
-        buyer: buyer ?? this.buyer,
-        notes: notes ?? this.notes,
-        createdAt: createdAt ?? this.createdAt,
-        updatedAt: updatedAt ?? this.updatedAt,
-        lastError: lastError,
-      );
+  }) => MilkSale(
+    localId: localId ?? this.localId,
+    serverId: serverId ?? this.serverId,
+    syncAction: syncAction ?? this.syncAction,
+    saleDate: saleDate ?? this.saleDate,
+    litresSold: litresSold ?? this.litresSold,
+    pricePerLitre: pricePerLitre ?? this.pricePerLitre,
+    totalAmount: totalAmount ?? this.totalAmount,
+    buyer: buyer ?? this.buyer,
+    notes: notes ?? this.notes,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    lastError: lastError,
+  );
 }

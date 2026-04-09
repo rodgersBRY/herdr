@@ -61,15 +61,14 @@ class HealthDueAlert {
   });
 
   factory HealthDueAlert.fromApi(Map<String, dynamic> map) => HealthDueAlert(
-        cowId: _requiredString(map['cowId'] ?? map['cow_id']),
-        tagNumber: _requiredString(map['tagNumber'] ?? map['tag_number']),
-        breed: _requiredString(map['breed']),
-        recordId: _requiredString(map['recordId'] ?? map['record_id']),
-        type: _requiredString(map['type']),
-        nextDueDate:
-            _requiredString(map['nextDueDate'] ?? map['next_due_date']),
-        description: _requiredString(map['description']),
-      );
+    cowId: _requiredString(map['cowId'] ?? map['cow_id']),
+    tagNumber: _requiredString(map['tagNumber'] ?? map['tag_number']),
+    breed: _requiredString(map['breed']),
+    recordId: _requiredString(map['recordId'] ?? map['record_id']),
+    type: _requiredString(map['type']),
+    nextDueDate: _requiredString(map['nextDueDate'] ?? map['next_due_date']),
+    description: _requiredString(map['description']),
+  );
   factory HealthDueAlert.fromJson(Map<String, dynamic> json) =>
       _$HealthDueAlertFromJson(json);
 
@@ -93,16 +92,16 @@ class CalvingDueAlert {
   });
 
   factory CalvingDueAlert.fromApi(Map<String, dynamic> map) => CalvingDueAlert(
-        cowId: _requiredString(map['cowId'] ?? map['cow_id']),
-        tagNumber: _requiredString(map['tagNumber'] ?? map['tag_number']),
-        breed: _requiredString(map['breed']),
-        breedingRecordId: _requiredString(
-          map['breedingRecordId'] ?? map['breeding_record_id'],
-        ),
-        expectedCalvingDate: _requiredString(
-          map['expectedCalvingDate'] ?? map['expected_calving_date'],
-        ),
-      );
+    cowId: _requiredString(map['cowId'] ?? map['cow_id']),
+    tagNumber: _requiredString(map['tagNumber'] ?? map['tag_number']),
+    breed: _requiredString(map['breed']),
+    breedingRecordId: _requiredString(
+      map['breedingRecordId'] ?? map['breeding_record_id'],
+    ),
+    expectedCalvingDate: _requiredString(
+      map['expectedCalvingDate'] ?? map['expected_calving_date'],
+    ),
+  );
   factory CalvingDueAlert.fromJson(Map<String, dynamic> json) =>
       _$CalvingDueAlertFromJson(json);
 
@@ -184,33 +183,40 @@ class FarmAlerts {
   });
 
   const FarmAlerts.empty()
-      : healthDue = const [],
-        calvingDue = const [],
-        noMilkToday = const [],
-        recentlyTreated = const [];
+    : healthDue = const [],
+      calvingDue = const [],
+      noMilkToday = const [],
+      recentlyTreated = const [];
 
   factory FarmAlerts.fromApi(Map<String, dynamic> map) => FarmAlerts(
-        healthDue: ((map['healthDue'] ?? map['health_due']) as List<dynamic>? ??
-                const [])
+    healthDue:
+        ((map['healthDue'] ?? map['health_due']) as List<dynamic>? ?? const [])
             .map((item) => HealthDueAlert.fromApi(item as Map<String, dynamic>))
             .toList(),
-        calvingDue: ((map['calvingDue'] ?? map['calving_due']) as List<dynamic>? ??
+    calvingDue:
+        ((map['calvingDue'] ?? map['calving_due']) as List<dynamic>? ??
                 const [])
-            .map((item) => CalvingDueAlert.fromApi(item as Map<String, dynamic>))
+            .map(
+              (item) => CalvingDueAlert.fromApi(item as Map<String, dynamic>),
+            )
             .toList(),
-        noMilkToday:
-            ((map['noMilkToday'] ?? map['no_milk_today']) as List<dynamic>? ??
-                    const [])
-                .map((item) => NoMilkTodayAlert.fromApi(item as Map<String, dynamic>))
-                .toList(),
-        recentlyTreated: ((map['recentlyTreated'] ?? map['recently_treated'])
+    noMilkToday:
+        ((map['noMilkToday'] ?? map['no_milk_today']) as List<dynamic>? ??
+                const [])
+            .map(
+              (item) => NoMilkTodayAlert.fromApi(item as Map<String, dynamic>),
+            )
+            .toList(),
+    recentlyTreated:
+        ((map['recentlyTreated'] ?? map['recently_treated'])
                     as List<dynamic>? ??
                 const [])
             .map(
-              (item) => RecentlyTreatedAlert.fromApi(item as Map<String, dynamic>),
+              (item) =>
+                  RecentlyTreatedAlert.fromApi(item as Map<String, dynamic>),
             )
             .toList(),
-      );
+  );
   factory FarmAlerts.fromJson(Map<String, dynamic> json) =>
       _$FarmAlertsFromJson(json);
 

@@ -6,6 +6,7 @@ import '../../../core/network/network_status_service.dart';
 import '../../../core/utils/app_formatters.dart';
 import '../../../routes/app_routes.dart';
 import '../../../widgets/app_scaffold.dart';
+import '../../auth/controller/auth_controller.dart';
 import '../controller/home_controller.dart';
 
 class HomeView extends StatelessWidget {
@@ -23,6 +24,36 @@ class HomeView extends StatelessWidget {
                 IconButton(
                   onPressed: ctrl.loadAlerts,
                   icon: const Icon(Icons.refresh),
+                ),
+                PopupMenuButton<String>(
+                  onSelected: (value) async {
+                    if (value == 'signOut') {
+                      await Get.find<AuthController>().signOut();
+                    }
+                  },
+                  itemBuilder: (_) {
+                    final auth = Get.find<AuthController>();
+                    final email = auth.userEmail;
+                    return [
+                      if (email != null && email.isNotEmpty)
+                        PopupMenuItem<String>(
+                          enabled: false,
+                          value: 'email',
+                          child: Text(
+                            email,
+                            style: const TextStyle(
+                              color: AppTheme.textSecondary,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      const PopupMenuItem<String>(
+                        value: 'signOut',
+                        child: Text('Sign out'),
+                      ),
+                    ];
+                  },
+                  icon: const Icon(Icons.account_circle_outlined),
                 ),
               ],
             ),

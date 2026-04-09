@@ -31,12 +31,15 @@ class AddCowView extends StatelessWidget {
               FormBuilderDropdown<String>(
                 name: 'breed',
                 decoration: const InputDecoration(labelText: 'Breed'),
-                items: AppConstants.breeds
-                    .map((breed) => DropdownMenuItem(
-                          value: breed,
-                          child: Text(breed),
-                        ))
-                    .toList(),
+                items:
+                    AppConstants.breeds
+                        .map(
+                          (breed) => DropdownMenuItem(
+                            value: breed,
+                            child: Text(breed),
+                          ),
+                        )
+                        .toList(),
                 validator: FormBuilderValidators.required(),
               ),
               const SizedBox(height: 16),
@@ -44,7 +47,9 @@ class AddCowView extends StatelessWidget {
                 name: 'dateOfBirth',
                 inputType: InputType.date,
                 lastDate: DateTime.now(),
-                initialValue: DateTime.now().subtract(const Duration(days: 365)),
+                initialValue: DateTime.now().subtract(
+                  const Duration(days: 365),
+                ),
                 decoration: const InputDecoration(labelText: 'Date of Birth'),
                 validator: FormBuilderValidators.required(),
               ),
@@ -89,13 +94,14 @@ class AddCowView extends StatelessWidget {
               Obx(
                 () => ElevatedButton(
                   onPressed: ctrl.isSaving.value ? null : ctrl.save,
-                  child: ctrl.isSaving.value
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Save Cow'),
+                  child:
+                      ctrl.isSaving.value
+                          ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                          : const Text('Save Cow'),
                 ),
               ),
             ],
