@@ -2,21 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 
-import '../../../config/app_theme.dart';
 import '../../../core/ui/app_loading_dots.dart';
 import '../../../core/utils/constants.dart';
-import '../../cows/models/cow.dart';
-import '../models/expense_log.dart';
-import '../repository/expense_repository.dart';
+import '../controller/expense_controller.dart';
 
 class AddExpenseView extends StatelessWidget {
   const AddExpenseView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final ctrl = Get.put(_AddExpenseCtrl());
+    final ctrl = Get.put(ExpenseController());
 
     return Scaffold(
       appBar: AppBar(title: Text('Expense • ${ctrl.cow.tagNumber}')),
@@ -84,16 +80,15 @@ class AddExpenseView extends StatelessWidget {
               Obx(
                 () => ElevatedButton(
                   onPressed: ctrl.isSaving.value ? null : ctrl.save,
-                  child:
-                      ctrl.isSaving.value
-                          ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: Center(
-                              child: AppLoadingDots(dotSize: 4.5, gap: 2.5),
-                            ),
-                          )
-                          : const Text('Save Expense'),
+                  child: ctrl.isSaving.value
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: Center(
+                            child: AppLoadingDots(dotSize: 4.5, gap: 2.5),
+                          ),
+                        )
+                      : const Text('Save Expense'),
                 ),
               ),
             ],
@@ -101,55 +96,5 @@ class AddExpenseView extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class _AddExpenseCtrl extends GetxController {
-  final ExpenseRepository _repository = ExpenseRepository();
-  final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
-  final RxBool isSaving = false.obs;
-  late Cow cow;
-
-  @override
-  void onInit() {
-    super.onInit();
-    cow = Get.arguments as Cow;
-  }
-
-  Future<void> save() async {
-    if (!formKey.currentState!.saveAndValidate()) {
-      return;
-    }
-
-    final values = formKey.currentState!.value;
-    isSaving.value = true;
-
-    try {
-      final now = DateTime.now().toIso8601String();
-      await _repository.insert(
-        ExpenseLog(
-          cowLocalId: cow.localId,
-          category: values['category'] as String,
-          amount: double.parse(values['amount'] as String),
-          expenseDate: DateFormat(
-            'yyyy-MM-dd',
-          ).format(values['expenseDate'] as DateTime),
-          notes: values['notes'] as String?,
-          createdAt: now,
-          updatedAt: now,
-        ),
-      );
-
-      Get.back(result: true);
-      Get.snackbar(
-        'Expense saved',
-        'The expense has been saved.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppTheme.primary,
-        colorText: Colors.white,
-      );
-    } finally {
-      isSaving.value = false;
-    }
   }
 }

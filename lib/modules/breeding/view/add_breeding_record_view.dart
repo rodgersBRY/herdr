@@ -2,21 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 
-import '../../../config/app_theme.dart';
 import '../../../core/ui/app_loading_dots.dart';
 import '../../../core/utils/constants.dart';
-import '../../cows/models/cow.dart';
-import '../models/breeding_record.dart';
-import '../repository/breeding_repository.dart';
+import '../controller/breeding_record_controller.dart';
 
 class AddBreedingRecordView extends StatelessWidget {
   const AddBreedingRecordView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final ctrl = Get.put(_AddBreedingCtrl());
+    final ctrl = Get.put(BreedingRecordController());
 
     return Scaffold(
       appBar: AppBar(title: Text('Breeding • ${ctrl.cow.tagNumber}')),
@@ -31,10 +27,8 @@ class AddBreedingRecordView extends StatelessWidget {
                   name: 'eventType',
                   initialValue: AppConstants.breedingService,
                   decoration: const InputDecoration(labelText: 'Event type'),
-                  onChanged:
-                      (value) =>
-                          ctrl.eventType.value =
-                              value ?? AppConstants.breedingService,
+                  onChanged: (value) =>
+                      ctrl.eventType.value = value ?? AppConstants.breedingService,
                   items: const [
                     DropdownMenuItem(
                       value: AppConstants.breedingHeat,
@@ -84,15 +78,14 @@ class AddBreedingRecordView extends StatelessWidget {
                   FormBuilderDropdown<String>(
                     name: 'calfBreed',
                     decoration: const InputDecoration(labelText: 'Calf breed'),
-                    items:
-                        AppConstants.breeds
-                            .map(
-                              (breed) => DropdownMenuItem(
-                                value: breed,
-                                child: Text(breed),
-                              ),
-                            )
-                            .toList(),
+                    items: AppConstants.breeds
+                        .map(
+                          (breed) => DropdownMenuItem(
+                            value: breed,
+                            child: Text(breed),
+                          ),
+                        )
+                        .toList(),
                     validator: FormBuilderValidators.required(),
                   ),
                 ],
@@ -106,16 +99,15 @@ class AddBreedingRecordView extends StatelessWidget {
                 Obx(
                   () => ElevatedButton(
                     onPressed: ctrl.isSaving.value ? null : ctrl.save,
-                    child:
-                        ctrl.isSaving.value
-                            ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: Center(
-                                child: AppLoadingDots(dotSize: 4.5, gap: 2.5),
-                              ),
-                            )
-                            : const Text('Save Record'),
+                    child: ctrl.isSaving.value
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: Center(
+                              child: AppLoadingDots(dotSize: 4.5, gap: 2.5),
+                            ),
+                          )
+                        : const Text('Save Record'),
                   ),
                 ),
               ],
@@ -124,64 +116,5 @@ class AddBreedingRecordView extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class _AddBreedingCtrl extends GetxController {
-  final BreedingRepository _repository = BreedingRepository();
-  final GlobalKey<FormBuilderState> formKey = GlobalKey<FormBuilderState>();
-  final RxBool isSaving = false.obs;
-  final RxString eventType = AppConstants.breedingService.obs;
-  late Cow cow;
-
-  @override
-  void onInit() {
-    super.onInit();
-    cow = Get.arguments as Cow;
-  }
-
-  Future<void> save() async {
-    if (!formKey.currentState!.saveAndValidate()) {
-      return;
-    }
-
-    final values = formKey.currentState!.value;
-    final fmt = DateFormat('yyyy-MM-dd');
-    isSaving.value = true;
-
-    try {
-      final now = DateTime.now().toIso8601String();
-      await _repository.insert(
-        BreedingRecord(
-          cowLocalId: cow.localId,
-          eventType: values['eventType'] as String,
-          eventDate: fmt.format(values['eventDate'] as DateTime),
-          expectedCalvingDate:
-              values['expectedCalvingDate'] != null
-                  ? fmt.format(values['expectedCalvingDate'] as DateTime)
-                  : null,
-          calfTagNumber: values['calfTagNumber'] as String?,
-          calfBreed: values['calfBreed'] as String?,
-          calfDateOfBirth:
-              values['eventDate'] != null
-                  ? fmt.format(values['eventDate'] as DateTime)
-                  : null,
-          notes: values['notes'] as String?,
-          createdAt: now,
-          updatedAt: now,
-        ),
-      );
-
-      Get.back(result: true);
-      Get.snackbar(
-        'Breeding record saved',
-        'The record has been saved.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppTheme.primary,
-        colorText: Colors.white,
-      );
-    } finally {
-      isSaving.value = false;
-    }
   }
 }
