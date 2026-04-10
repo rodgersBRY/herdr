@@ -19,7 +19,6 @@ dependencies:
   uuid: ^4.5.1
   dio: ^5.8.0+1
   connectivity_plus: ^6.1.4
-  workmanager: ^0.5.2
   intl: any
   flutter_dotenv: ^5.2.1
   flutter_secure_storage: ^9.2.4
