@@ -12,6 +12,8 @@ class AuthService extends GetxService {
   static const String _userIdKey = 'auth.user_id';
   static const String _userEmailKey = 'auth.user_email';
   static const String _userFullNameKey = 'auth.user_full_name';
+  static const String _orgIdKey = 'auth.org_id';
+  static const String _orgNameKey = 'auth.org_name';
 
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
@@ -20,6 +22,8 @@ class AuthService extends GetxService {
   final RxnString userId = RxnString();
   final RxnString userEmail = RxnString();
   final RxnString userFullName = RxnString();
+  final RxnString orgId = RxnString();
+  final RxnString orgName = RxnString();
   final RxBool isAuthenticated = false.obs;
 
   Future<bool>? _refreshInFlight;
@@ -30,6 +34,8 @@ class AuthService extends GetxService {
     userId.value = await _storage.read(key: _userIdKey);
     userEmail.value = await _storage.read(key: _userEmailKey);
     userFullName.value = await _storage.read(key: _userFullNameKey);
+    orgId.value = await _storage.read(key: _orgIdKey);
+    orgName.value = await _storage.read(key: _orgNameKey);
 
     isAuthenticated.value = accessToken.value != null;
 
@@ -83,6 +89,11 @@ class AuthService extends GetxService {
     userFullName.value = _extractString(metadata['full_name']);
   }
 
+  void _applyOrganization(Map<String, dynamic> org) {
+    orgId.value = _extractString(org['id']);
+    orgName.value = _extractString(org['name']);
+  }
+
   Future<void> _persistSession() async {
     await Future.wait([
       if (accessToken.value != null)
@@ -105,6 +116,14 @@ class AuthService extends GetxService {
         _storage.write(key: _userFullNameKey, value: userFullName.value)
       else
         _storage.delete(key: _userFullNameKey),
+      if (orgId.value != null)
+        _storage.write(key: _orgIdKey, value: orgId.value)
+      else
+        _storage.delete(key: _orgIdKey),
+      if (orgName.value != null)
+        _storage.write(key: _orgNameKey, value: orgName.value)
+      else
+        _storage.delete(key: _orgNameKey),
     ]);
   }
 
@@ -139,6 +158,11 @@ class AuthService extends GetxService {
       _applyUser(user);
     }
 
+    final org = _asMap(payload['organization']);
+    if (org.isNotEmpty) {
+      _applyOrganization(org);
+    }
+
     isAuthenticated.value = accessToken.value != null;
     await _persistSession();
   }
@@ -171,6 +195,7 @@ class AuthService extends GetxService {
   Future<Map<String, dynamic>> signUp({
     required String email,
     required String password,
+    required String farmName,
     String? fullName,
   }) async {
     try {
@@ -179,6 +204,7 @@ class AuthService extends GetxService {
         data: {
           'email': email,
           'password': password,
+          'farm_name': farmName.trim(),
           if (fullName != null && fullName.trim().isNotEmpty)
             'full_name': fullName.trim(),
         },
@@ -205,18 +231,32 @@ class AuthService extends GetxService {
       return null;
     }
 
+    final authHeaders = Options(headers: {'Authorization': 'Bearer $token'});
+
     try {
-      final response = await _publicDio().get(
-        '/auth/me',
-        options: Options(headers: {'Authorization': 'Bearer $token'}),
-      );
-      final payload = _asMap(response.data);
+      final dio = _publicDio();
+
+      final userResponse = await dio.get('/auth/me', options: authHeaders);
+      final payload = _asMap(userResponse.data);
       final user = _asMap(payload['user']);
       if (user.isNotEmpty) {
         _applyUser(user);
-        await _persistSession();
       }
 
+      try {
+        final orgResponse = await dio.get(
+          '/auth/me/organization',
+          options: authHeaders,
+        );
+        final org = _asMap(_asMap(orgResponse.data)['organization']);
+        if (org.isNotEmpty) {
+          _applyOrganization(org);
+        }
+      } on DioException {
+        // Org fetch is best-effort; don't fail the whole session restore.
+      }
+
+      await _persistSession();
       return payload;
     } on DioException catch (error) {
       throw error.copyWith(
@@ -296,6 +336,8 @@ class AuthService extends GetxService {
     userId.value = null;
     userEmail.value = null;
     userFullName.value = null;
+    orgId.value = null;
+    orgName.value = null;
     isAuthenticated.value = false;
 
     await _persistSession();

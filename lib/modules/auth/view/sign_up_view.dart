@@ -16,6 +16,7 @@ class _SignUpViewState extends State<SignUpView> {
   final AuthController _controller = Get.find<AuthController>();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _fullNameController = TextEditingController();
+  final TextEditingController _farmNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
@@ -23,6 +24,7 @@ class _SignUpViewState extends State<SignUpView> {
   @override
   void dispose() {
     _fullNameController.dispose();
+    _farmNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -37,6 +39,7 @@ class _SignUpViewState extends State<SignUpView> {
     await _controller.signUp(
       email: _emailController.text.trim(),
       password: _passwordController.text,
+      farmName: _farmNameController.text.trim(),
       fullName: _fullNameController.text.trim(),
     );
   }
@@ -69,6 +72,20 @@ class _SignUpViewState extends State<SignUpView> {
                         decoration: const InputDecoration(
                           labelText: 'Full name',
                         ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _farmNameController,
+                        textCapitalization: TextCapitalization.words,
+                        decoration: const InputDecoration(
+                          labelText: 'Farm name',
+                        ),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Farm name is required';
+                          }
+                          return null;
+                        },
                       ),
                       const SizedBox(height: 16),
                       TextFormField(

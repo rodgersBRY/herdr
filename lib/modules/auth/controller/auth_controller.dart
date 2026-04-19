@@ -19,6 +19,7 @@ class AuthController extends GetxController {
       _authService.userFullName.value?.trim().isNotEmpty == true
           ? _authService.userFullName.value!.trim()
           : (_authService.userEmail.value ?? 'Farmer');
+  String? get orgName => _authService.orgName.value;
 
   Future<void> signIn({required String email, required String password}) async {
     isSigningIn.value = true;
@@ -43,6 +44,7 @@ class AuthController extends GetxController {
   Future<void> signUp({
     required String email,
     required String password,
+    required String farmName,
     String? fullName,
   }) async {
     isSigningUp.value = true;
@@ -51,6 +53,7 @@ class AuthController extends GetxController {
       await _authService.signUp(
         email: email,
         password: password,
+        farmName: farmName,
         fullName: fullName,
       );
 
