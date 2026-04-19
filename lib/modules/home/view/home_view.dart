@@ -7,6 +7,7 @@ import '../../../core/ui/app_loading_dots.dart';
 import '../../../core/utils/app_formatters.dart';
 import '../../../routes/app_routes.dart';
 import '../../../widgets/app_scaffold.dart';
+import '../../../core/auth/auth_service.dart';
 import '../../auth/controller/auth_controller.dart';
 import '../controller/home_controller.dart';
 
@@ -20,7 +21,33 @@ class HomeView extends StatelessWidget {
       builder:
           (ctrl) => Scaffold(
             appBar: AppBar(
-              title: Text(ctrl.todayDisplay),
+              title: Obx(() {
+                final farm = Get.find<AuthService>().orgName.value;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (farm != null && farm.isNotEmpty)
+                      Text(
+                        farm,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    Text(
+                      ctrl.todayDisplay,
+                      style: TextStyle(
+                        fontSize: farm != null && farm.isNotEmpty ? 12 : 16,
+                        fontWeight: FontWeight.w500,
+                        color: farm != null && farm.isNotEmpty
+                            ? AppTheme.textSecondary
+                            : null,
+                      ),
+                    ),
+                  ],
+                );
+              }),
               actions: [
                 IconButton(
                   onPressed: ctrl.loadAlerts,
@@ -33,9 +60,34 @@ class HomeView extends StatelessWidget {
                     }
                   },
                   itemBuilder: (_) {
+                    final authService = Get.find<AuthService>();
                     final auth = Get.find<AuthController>();
+                    final farm = authService.orgName.value;
                     final email = auth.userEmail;
                     return [
+                      if (farm != null && farm.isNotEmpty)
+                        PopupMenuItem<String>(
+                          enabled: false,
+                          value: 'farm',
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.home_work_outlined,
+                                size: 16,
+                                color: AppTheme.textSecondary,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                farm,
+                                style: const TextStyle(
+                                  color: AppTheme.textPrimary,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       if (email != null && email.isNotEmpty)
                         PopupMenuItem<String>(
                           enabled: false,
@@ -48,6 +100,8 @@ class HomeView extends StatelessWidget {
                             ),
                           ),
                         ),
+                      if (farm != null || email != null)
+                        const PopupMenuDivider(),
                       const PopupMenuItem<String>(
                         value: 'signOut',
                         child: Text('Sign out'),
