@@ -14,6 +14,7 @@ class AuthService extends GetxService {
   static const String _userFullNameKey = 'auth.user_full_name';
   static const String _orgIdKey = 'auth.org_id';
   static const String _orgNameKey = 'auth.org_name';
+  static const String _userRoleKey = 'auth.user_role';
 
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
@@ -24,6 +25,7 @@ class AuthService extends GetxService {
   final RxnString userFullName = RxnString();
   final RxnString orgId = RxnString();
   final RxnString orgName = RxnString();
+  final RxnString userRole = RxnString();
   final RxBool isAuthenticated = false.obs;
 
   Future<bool>? _refreshInFlight;
@@ -36,6 +38,7 @@ class AuthService extends GetxService {
     userFullName.value = await _storage.read(key: _userFullNameKey);
     orgId.value = await _storage.read(key: _orgIdKey);
     orgName.value = await _storage.read(key: _orgNameKey);
+    userRole.value = await _storage.read(key: _userRoleKey);
 
     isAuthenticated.value = accessToken.value != null;
 
@@ -92,6 +95,7 @@ class AuthService extends GetxService {
   void _applyOrganization(Map<String, dynamic> org) {
     orgId.value = _extractString(org['id']);
     orgName.value = _extractString(org['name']);
+    userRole.value = _extractString(org['role']);
   }
 
   Future<void> _persistSession() async {
@@ -124,6 +128,10 @@ class AuthService extends GetxService {
         _storage.write(key: _orgNameKey, value: orgName.value)
       else
         _storage.delete(key: _orgNameKey),
+      if (userRole.value != null)
+        _storage.write(key: _userRoleKey, value: userRole.value)
+      else
+        _storage.delete(key: _userRoleKey),
     ]);
   }
 
@@ -338,6 +346,7 @@ class AuthService extends GetxService {
     userFullName.value = null;
     orgId.value = null;
     orgName.value = null;
+    userRole.value = null;
     isAuthenticated.value = false;
 
     await _persistSession();

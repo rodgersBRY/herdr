@@ -14,4 +14,5 @@ abstract class AppRoutes {
   static const addHealthRecord = '/health/add';
   static const addBreedingRecord = '/breeding/add';
   static const addExpense = '/expenses/add';
+  static const profile = '/profile';
 }

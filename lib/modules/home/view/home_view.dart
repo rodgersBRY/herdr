@@ -57,6 +57,8 @@ class HomeView extends StatelessWidget {
                   onSelected: (value) async {
                     if (value == 'signOut') {
                       await Get.find<AuthController>().signOut();
+                    } else if (value == 'profile') {
+                      Get.toNamed(AppRoutes.profile);
                     }
                   },
                   itemBuilder: (_) {
@@ -103,8 +105,24 @@ class HomeView extends StatelessWidget {
                       if (farm != null || email != null)
                         const PopupMenuDivider(),
                       const PopupMenuItem<String>(
+                        value: 'profile',
+                        child: Row(
+                          children: [
+                            Icon(Icons.manage_accounts_outlined, size: 18),
+                            SizedBox(width: 10),
+                            Text('Farm profile'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem<String>(
                         value: 'signOut',
-                        child: Text('Sign out'),
+                        child: Row(
+                          children: [
+                            Icon(Icons.logout, size: 18),
+                            SizedBox(width: 10),
+                            Text('Sign out'),
+                          ],
+                        ),
                       ),
                     ];
                   },

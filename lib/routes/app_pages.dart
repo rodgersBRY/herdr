@@ -8,6 +8,7 @@ import '../modules/cow_profile/view/cow_profile_view.dart';
 import '../modules/health/view/add_health_record_view.dart';
 import '../modules/breeding/view/add_breeding_record_view.dart';
 import '../modules/expenses/view/add_expense_view.dart';
+import '../modules/profile/view/profile_view.dart';
 import '../modules/sales/view/sales_view.dart';
 import 'auth_middleware.dart';
 import 'app_routes.dart';
@@ -62,6 +63,11 @@ class AppPages {
     GetPage(
       name: AppRoutes.addSale,
       page: () => const AddSaleView(),
+      middlewares: [AuthRequiredMiddleware()],
+    ),
+    GetPage(
+      name: AppRoutes.profile,
+      page: () => const ProfileView(),
       middlewares: [AuthRequiredMiddleware()],
     ),
   ];
