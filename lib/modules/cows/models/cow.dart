@@ -24,7 +24,7 @@ String? _stringFromDynamic(dynamic value) {
       }
     }
   }
-  
+
   return null;
 }
 
