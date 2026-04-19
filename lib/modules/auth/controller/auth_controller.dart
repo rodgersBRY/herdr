@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
 import '../../../core/auth/auth_service.dart';
+import '../../../core/database/database_helper.dart';
 import '../../../core/network/api_error.dart';
 import '../../../core/sync/sync_service.dart';
 import '../../../core/ui/app_snackbar.dart';
@@ -83,6 +84,7 @@ class AuthController extends GetxController {
     isSigningOut.value = true;
 
     try {
+      await DatabaseHelper().clearAllTables();
       await _authService.signOut();
 
       Get.offAllNamed(AppRoutes.signIn);

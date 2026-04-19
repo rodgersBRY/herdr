@@ -42,6 +42,18 @@ class DatabaseHelper {
     await _createSchema(db);
   }
 
+  Future<void> clearAllTables() async {
+    final database = await db;
+    await database.transaction((txn) async {
+      await txn.execute('DELETE FROM milk_logs');
+      await txn.execute('DELETE FROM health_records');
+      await txn.execute('DELETE FROM breeding_records');
+      await txn.execute('DELETE FROM expense_logs');
+      await txn.execute('DELETE FROM milk_sales');
+      await txn.execute('DELETE FROM cows');
+    });
+  }
+
   Future<void> _createSchema(Database db) async {
     await db.execute('''
       CREATE TABLE cows (
