@@ -33,6 +33,8 @@ class HealthRecord {
   @JsonKey(includeFromJson: false, includeToJson: false)
   final String syncAction;
   @JsonKey(includeFromJson: false, includeToJson: false)
+  final String? organizationId;
+  @JsonKey(includeFromJson: false, includeToJson: false)
   final String cowLocalId;
   final String type;
   final String description;
@@ -50,6 +52,7 @@ class HealthRecord {
     this.localId = '',
     this.serverId,
     this.syncAction = AppConstants.syncSynced,
+    this.organizationId,
     this.cowLocalId = '',
     this.type = '',
     this.description = '',
@@ -69,6 +72,7 @@ class HealthRecord {
     localId: map['local_id'] as String,
     serverId: map['server_id'] as String?,
     syncAction: (map['sync_action'] as String?) ?? AppConstants.syncSynced,
+    organizationId: map['organization_id'] as String?,
     cowLocalId: map['cow_local_id'] as String,
     type: map['type'] as String,
     description: map['description'] as String,
@@ -91,6 +95,9 @@ class HealthRecord {
     localId: localId,
     serverId: _stringFromDynamic(map['id']),
     syncAction: syncAction,
+    organizationId: _stringFromDynamic(
+      map['organizationId'] ?? map['organization_id'],
+    ),
     cowLocalId: cowLocalId,
     type: _stringFromDynamic(map['type']) ?? '',
     description: _stringFromDynamic(map['description']) ?? '',
@@ -110,6 +117,7 @@ class HealthRecord {
     'local_id': localId,
     'server_id': serverId,
     'sync_action': syncAction,
+    'organization_id': organizationId,
     'cow_local_id': cowLocalId,
     'type': type,
     'description': description,
@@ -146,6 +154,7 @@ class HealthRecord {
     String? localId,
     String? serverId,
     String? syncAction,
+    String? organizationId,
     String? cowLocalId,
     String? type,
     String? description,
@@ -160,6 +169,7 @@ class HealthRecord {
     localId: localId ?? this.localId,
     serverId: serverId ?? this.serverId,
     syncAction: syncAction ?? this.syncAction,
+    organizationId: organizationId ?? this.organizationId,
     cowLocalId: cowLocalId ?? this.cowLocalId,
     type: type ?? this.type,
     description: description ?? this.description,

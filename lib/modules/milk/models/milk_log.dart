@@ -40,6 +40,8 @@ class MilkLog {
   @JsonKey(includeFromJson: false, includeToJson: false)
   final String syncAction;
   @JsonKey(includeFromJson: false, includeToJson: false)
+  final String? organizationId;
+  @JsonKey(includeFromJson: false, includeToJson: false)
   final String cowLocalId;
   final String logDate;
   @JsonKey(fromJson: _doubleFromJson)
@@ -60,6 +62,7 @@ class MilkLog {
     this.localId = '',
     this.serverId,
     this.syncAction = AppConstants.syncSynced,
+    this.organizationId,
     this.cowLocalId = '',
     this.logDate = '',
     this.litres = 0,
@@ -79,6 +82,7 @@ class MilkLog {
     localId: map['local_id'] as String,
     serverId: map['server_id'] as String?,
     syncAction: (map['sync_action'] as String?) ?? AppConstants.syncSynced,
+    organizationId: map['organization_id'] as String?,
     cowLocalId: map['cow_local_id'] as String,
     logDate: map['log_date'] as String,
     litres: (map['litres'] as num).toDouble(),
@@ -101,6 +105,9 @@ class MilkLog {
     localId: localId,
     serverId: _stringFromDynamic(map['id']),
     syncAction: syncAction,
+    organizationId: _stringFromDynamic(
+      map['organizationId'] ?? map['organization_id'],
+    ),
     cowLocalId: cowLocalId,
     logDate: _stringFromDynamic(map['logDate'] ?? map['log_date']) ?? '',
     litres: _doubleFromJson(map['litres']),
@@ -121,6 +128,7 @@ class MilkLog {
     'local_id': localId,
     'server_id': serverId,
     'sync_action': syncAction,
+    'organization_id': organizationId,
     'cow_local_id': cowLocalId,
     'log_date': logDate,
     'litres': litres,
@@ -150,6 +158,7 @@ class MilkLog {
     String? localId,
     String? serverId,
     String? syncAction,
+    String? organizationId,
     String? cowLocalId,
     String? logDate,
     double? litres,
@@ -164,6 +173,7 @@ class MilkLog {
     localId: localId ?? this.localId,
     serverId: serverId ?? this.serverId,
     syncAction: syncAction ?? this.syncAction,
+    organizationId: organizationId ?? this.organizationId,
     cowLocalId: cowLocalId ?? this.cowLocalId,
     logDate: logDate ?? this.logDate,
     litres: litres ?? this.litres,

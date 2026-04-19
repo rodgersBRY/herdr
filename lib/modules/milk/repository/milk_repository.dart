@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../core/auth/auth_service.dart';
 import '../../../core/database/database_helper.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/network/api_error.dart';
@@ -18,6 +19,7 @@ class MilkRepository {
 
   Dio get _dio => Get.find<ApiClient>().dio;
   bool get _isOnline => Get.find<NetworkStatusService>().isOnline.value;
+  String? get _orgId => Get.find<AuthService>().orgId.value;
 
   Future<List<MilkLog>> getForDate(String date, {String? period}) async {
     final db = await _db.db;
@@ -82,6 +84,7 @@ class MilkRepository {
     final local = (existing ?? log).copyWith(
       localId: existing?.localId ?? _uuid.v4(),
       serverId: existing?.serverId ?? log.serverId,
+      organizationId: existing?.organizationId ?? _orgId,
       cowLocalId: log.cowLocalId,
       logDate: log.logDate,
       litres: log.litres,

@@ -7,12 +7,15 @@ String? _stringFromDynamic(dynamic value) {
   if (value == null) {
     return null;
   }
+
   if (value is String) {
     return value;
   }
+
   if (value is num || value is bool) {
     return value.toString();
   }
+
   if (value is Map<String, dynamic>) {
     for (final key in const ['id', 'value', 'name']) {
       final nested = value[key];
@@ -21,6 +24,7 @@ String? _stringFromDynamic(dynamic value) {
       }
     }
   }
+  
   return null;
 }
 
@@ -32,6 +36,8 @@ class Cow {
   final String? serverId;
   @JsonKey(includeFromJson: false, includeToJson: false)
   final String syncAction;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  final String? organizationId;
   final String tagNumber;
   final String breed;
   final String dateOfBirth;
@@ -47,6 +53,7 @@ class Cow {
     this.localId = '',
     this.serverId,
     this.syncAction = AppConstants.syncSynced,
+    this.organizationId,
     this.tagNumber = '',
     this.breed = '',
     this.dateOfBirth = '',
@@ -67,6 +74,7 @@ class Cow {
     localId: map['local_id'] as String,
     serverId: map['server_id'] as String?,
     syncAction: (map['sync_action'] as String?) ?? AppConstants.syncSynced,
+    organizationId: map['organization_id'] as String?,
     tagNumber: map['tag_number'] as String,
     breed: map['breed'] as String,
     dateOfBirth: map['date_of_birth'] as String,
@@ -86,6 +94,9 @@ class Cow {
     localId: localId,
     serverId: _stringFromDynamic(map['id']),
     syncAction: syncAction,
+    organizationId: _stringFromDynamic(
+      map['organizationId'] ?? map['organization_id'],
+    ),
     tagNumber: _stringFromDynamic(map['tagNumber'] ?? map['tag_number']) ?? '',
     breed: _stringFromDynamic(map['breed']) ?? '',
     dateOfBirth:
@@ -103,6 +114,7 @@ class Cow {
     'local_id': localId,
     'server_id': serverId,
     'sync_action': syncAction,
+    'organization_id': organizationId,
     'tag_number': tagNumber,
     'breed': breed,
     'date_of_birth': dateOfBirth,
@@ -132,6 +144,7 @@ class Cow {
     String? localId,
     String? serverId,
     String? syncAction,
+    String? organizationId,
     String? tagNumber,
     String? breed,
     String? dateOfBirth,
@@ -144,6 +157,7 @@ class Cow {
     localId: localId ?? this.localId,
     serverId: serverId ?? this.serverId,
     syncAction: syncAction ?? this.syncAction,
+    organizationId: organizationId ?? this.organizationId,
     tagNumber: tagNumber ?? this.tagNumber,
     breed: breed ?? this.breed,
     dateOfBirth: dateOfBirth ?? this.dateOfBirth,

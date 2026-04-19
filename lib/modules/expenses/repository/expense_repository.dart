@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../core/auth/auth_service.dart';
 import '../../../core/database/database_helper.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/network/api_error.dart';
@@ -18,6 +19,7 @@ class ExpenseRepository {
 
   Dio get _dio => Get.find<ApiClient>().dio;
   bool get _isOnline => Get.find<NetworkStatusService>().isOnline.value;
+  String? get _orgId => Get.find<AuthService>().orgId.value;
 
   Future<List<ExpenseLog>> getForCow(
     String cowLocalId, {
@@ -62,6 +64,7 @@ class ExpenseRepository {
     final local = expense.copyWith(
       localId: _uuid.v4(),
       syncAction: AppConstants.syncCreate,
+      organizationId: _orgId,
       createdAt: expense.createdAt.isEmpty ? now : expense.createdAt,
       updatedAt: now,
       lastError: null,

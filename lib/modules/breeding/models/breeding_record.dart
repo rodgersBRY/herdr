@@ -37,6 +37,8 @@ class BreedingRecord {
   @JsonKey(includeFromJson: false, includeToJson: false)
   final String syncAction;
   @JsonKey(includeFromJson: false, includeToJson: false)
+  final String? organizationId;
+  @JsonKey(includeFromJson: false, includeToJson: false)
   final String cowLocalId;
   final String eventType;
   final String eventDate;
@@ -58,6 +60,7 @@ class BreedingRecord {
     this.localId = '',
     this.serverId,
     this.syncAction = AppConstants.syncSynced,
+    this.organizationId,
     this.cowLocalId = '',
     this.eventType = '',
     this.eventDate = '',
@@ -78,6 +81,7 @@ class BreedingRecord {
     localId: map['local_id'] as String,
     serverId: map['server_id'] as String?,
     syncAction: (map['sync_action'] as String?) ?? AppConstants.syncSynced,
+    organizationId: map['organization_id'] as String?,
     cowLocalId: map['cow_local_id'] as String,
     eventType: map['event_type'] as String,
     eventDate: map['event_date'] as String,
@@ -101,6 +105,9 @@ class BreedingRecord {
     localId: localId,
     serverId: _stringFromDynamic(map['id']),
     syncAction: syncAction,
+    organizationId: _stringFromDynamic(
+      map['organizationId'] ?? map['organization_id'],
+    ),
     cowLocalId: cowLocalId,
     eventType: _stringFromDynamic(map['eventType'] ?? map['event_type']) ?? '',
     eventDate: _stringFromDynamic(map['eventDate'] ?? map['event_date']) ?? '',
@@ -126,6 +133,7 @@ class BreedingRecord {
     'local_id': localId,
     'server_id': serverId,
     'sync_action': syncAction,
+    'organization_id': organizationId,
     'cow_local_id': cowLocalId,
     'event_type': eventType,
     'event_date': eventDate,
@@ -159,6 +167,7 @@ class BreedingRecord {
     String? localId,
     String? serverId,
     String? syncAction,
+    String? organizationId,
     String? cowLocalId,
     String? eventType,
     String? eventDate,
@@ -174,6 +183,7 @@ class BreedingRecord {
     localId: localId ?? this.localId,
     serverId: serverId ?? this.serverId,
     syncAction: syncAction ?? this.syncAction,
+    organizationId: organizationId ?? this.organizationId,
     cowLocalId: cowLocalId ?? this.cowLocalId,
     eventType: eventType ?? this.eventType,
     eventDate: eventDate ?? this.eventDate,

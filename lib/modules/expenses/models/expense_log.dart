@@ -40,6 +40,8 @@ class ExpenseLog {
   @JsonKey(includeFromJson: false, includeToJson: false)
   final String syncAction;
   @JsonKey(includeFromJson: false, includeToJson: false)
+  final String? organizationId;
+  @JsonKey(includeFromJson: false, includeToJson: false)
   final String cowLocalId;
   final String category;
   @JsonKey(fromJson: _doubleFromJson)
@@ -56,6 +58,7 @@ class ExpenseLog {
     this.localId = '',
     this.serverId,
     this.syncAction = AppConstants.syncSynced,
+    this.organizationId,
     this.cowLocalId = '',
     this.category = '',
     this.amount = 0,
@@ -73,6 +76,7 @@ class ExpenseLog {
     localId: map['local_id'] as String,
     serverId: map['server_id'] as String?,
     syncAction: (map['sync_action'] as String?) ?? AppConstants.syncSynced,
+    organizationId: map['organization_id'] as String?,
     cowLocalId: map['cow_local_id'] as String,
     category: map['category'] as String,
     amount: (map['amount'] as num).toDouble(),
@@ -93,6 +97,9 @@ class ExpenseLog {
     localId: localId,
     serverId: _stringFromDynamic(map['id']),
     syncAction: syncAction,
+    organizationId: _stringFromDynamic(
+      map['organizationId'] ?? map['organization_id'],
+    ),
     cowLocalId: cowLocalId,
     category: _stringFromDynamic(map['category']) ?? '',
     amount: _doubleFromJson(map['amount']),
@@ -110,6 +117,7 @@ class ExpenseLog {
     'local_id': localId,
     'server_id': serverId,
     'sync_action': syncAction,
+    'organization_id': organizationId,
     'cow_local_id': cowLocalId,
     'category': category,
     'amount': amount,
@@ -133,6 +141,7 @@ class ExpenseLog {
     String? localId,
     String? serverId,
     String? syncAction,
+    String? organizationId,
     String? cowLocalId,
     String? category,
     double? amount,
@@ -145,6 +154,7 @@ class ExpenseLog {
     localId: localId ?? this.localId,
     serverId: serverId ?? this.serverId,
     syncAction: syncAction ?? this.syncAction,
+    organizationId: organizationId ?? this.organizationId,
     cowLocalId: cowLocalId ?? this.cowLocalId,
     category: category ?? this.category,
     amount: amount ?? this.amount,

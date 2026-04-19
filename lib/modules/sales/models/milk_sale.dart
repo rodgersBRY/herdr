@@ -39,6 +39,8 @@ class MilkSale {
   final String? serverId;
   @JsonKey(includeFromJson: false, includeToJson: false)
   final String syncAction;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  final String? organizationId;
   final String saleDate;
   @JsonKey(fromJson: _doubleFromJson)
   final double litresSold;
@@ -58,6 +60,7 @@ class MilkSale {
     this.localId = '',
     this.serverId,
     this.syncAction = AppConstants.syncSynced,
+    this.organizationId,
     this.saleDate = '',
     this.litresSold = 0,
     this.pricePerLitre = 0,
@@ -76,6 +79,7 @@ class MilkSale {
     localId: map['local_id'] as String,
     serverId: map['server_id'] as String?,
     syncAction: (map['sync_action'] as String?) ?? AppConstants.syncSynced,
+    organizationId: map['organization_id'] as String?,
     saleDate: map['sale_date'] as String,
     litresSold: (map['litres_sold'] as num).toDouble(),
     pricePerLitre: (map['price_per_litre'] as num).toDouble(),
@@ -96,6 +100,9 @@ class MilkSale {
     localId: localId,
     serverId: _stringFromDynamic(map['id']),
     syncAction: syncAction,
+    organizationId: _stringFromDynamic(
+      map['organizationId'] ?? map['organization_id'],
+    ),
     saleDate: _stringFromDynamic(map['saleDate'] ?? map['sale_date']) ?? '',
     litresSold: _doubleFromJson(map['litresSold'] ?? map['litres_sold']),
     pricePerLitre: _doubleFromJson(
@@ -115,6 +122,7 @@ class MilkSale {
     'local_id': localId,
     'server_id': serverId,
     'sync_action': syncAction,
+    'organization_id': organizationId,
     'sale_date': saleDate,
     'litres_sold': litresSold,
     'price_per_litre': pricePerLitre,
@@ -140,6 +148,7 @@ class MilkSale {
     String? localId,
     String? serverId,
     String? syncAction,
+    String? organizationId,
     String? saleDate,
     double? litresSold,
     double? pricePerLitre,
@@ -153,6 +162,7 @@ class MilkSale {
     localId: localId ?? this.localId,
     serverId: serverId ?? this.serverId,
     syncAction: syncAction ?? this.syncAction,
+    organizationId: organizationId ?? this.organizationId,
     saleDate: saleDate ?? this.saleDate,
     litresSold: litresSold ?? this.litresSold,
     pricePerLitre: pricePerLitre ?? this.pricePerLitre,
