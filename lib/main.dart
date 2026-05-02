@@ -1,4 +1,7 @@
+import 'package:cattle_manager/core/notifications/notification_service.dart';
+import 'package:cattle_manager/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -12,16 +15,22 @@ import 'modules/auth/controller/auth_controller.dart';
 import 'routes/app_pages.dart';
 import 'routes/app_routes.dart';
 
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  debugPrint('Background message received');
+  debugPrint('Message ID: ${message.messageId}');
+  debugPrint('Message data: ${message.data}');
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  try {
-    await Firebase.initializeApp();
-  } catch (e) {
-    if (kDebugMode) {
-      print('Firebase initialization failed: $e');
-    }
-  }
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+  await NotificationService.initialize();
 
   try {
     await dotenv.load(fileName: '.env');
