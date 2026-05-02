@@ -1,3 +1,5 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
@@ -14,9 +16,19 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    if (kDebugMode) {
+      print('Firebase initialization failed: $e');
+    }
+  }
+
+  try {
     await dotenv.load(fileName: '.env');
   } catch (_) {
-    // Allow fallback configuration for environments where .env is not bundled.
+    if (kDebugMode) {
+      print('Failed to load env variables');
+    }
   }
 
   await Get.putAsync(() => NetworkStatusService().init(), permanent: true);
