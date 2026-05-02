@@ -3,6 +3,10 @@ import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:get/get.dart';
+
+import '../auth/auth_service.dart';
+import '../network/api_client.dart';
 
 class NotificationService {
   NotificationService._();
@@ -49,7 +53,7 @@ class NotificationService {
     );
 
     await _localNotifications.initialize(
-      settings: initializationSettings,
+      initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
         debugPrint('Notification clicked: ${response.payload}');
       },
@@ -97,7 +101,7 @@ class NotificationService {
     _firebaseMessaging.onTokenRefresh.listen((String token) {
       debugPrint('FCM token refreshed: $token');
 
-      // TODO: Send updated token to your backend.
+      registerToken(token: token);
     });
   }
 
@@ -107,10 +111,10 @@ class NotificationService {
     if (notification == null) return;
 
     await _localNotifications.show(
-      id: notification.hashCode,
-      title: notification.title,
-      body: notification.body,
-      notificationDetails: NotificationDetails(
+      notification.hashCode,
+      notification.title,
+      notification.body,
+      NotificationDetails(
         android: AndroidNotificationDetails(
           _androidChannel.id,
           _androidChannel.name,
@@ -141,6 +145,68 @@ class NotificationService {
 
   static Future<String?> getFcmToken() async {
     return _firebaseMessaging.getToken();
+  }
+
+  static bool get _canSyncToken {
+    if (!Platform.isAndroid) {
+      return false;
+    }
+
+    if (!Get.isRegistered<AuthService>() || !Get.isRegistered<ApiClient>()) {
+      return false;
+    }
+
+    final authService = Get.find<AuthService>();
+    return authService.isAuthenticated.value &&
+        (authService.accessToken.value?.isNotEmpty ?? false);
+  }
+
+  static Future<void> registerCurrentToken() async {
+    if (!_canSyncToken) {
+      return;
+    }
+
+    final token = await getFcmToken();
+    if (token == null || token.isEmpty) {
+      return;
+    }
+
+    await registerToken(token: token);
+  }
+
+  static Future<void> registerToken({required String token}) async {
+    if (!_canSyncToken || token.isEmpty) {
+      return;
+    }
+
+    try {
+      await Get.find<ApiClient>().dio.post(
+        '/notifications/tokens',
+        data: {'token': token, 'platform': 'android'},
+      );
+    } catch (error) {
+      debugPrint('Failed to register FCM token: $error');
+    }
+  }
+
+  static Future<void> unregisterCurrentToken() async {
+    if (!_canSyncToken) {
+      return;
+    }
+
+    final token = await getFcmToken();
+    if (token == null || token.isEmpty) {
+      return;
+    }
+
+    try {
+      await Get.find<ApiClient>().dio.delete(
+        '/notifications/tokens',
+        data: {'token': token},
+      );
+    } catch (error) {
+      debugPrint('Failed to unregister FCM token: $error');
+    }
   }
 
   static Future<void> _printFcmToken() async {

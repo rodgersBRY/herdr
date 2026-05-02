@@ -53,6 +53,8 @@ Future<void> main() async {
 
   await Get.putAsync(() => SyncService().init(), permanent: true);
 
+  await NotificationService.registerCurrentToken();
+
   Get.put(AuthController(), permanent: true);
 
   runApp(

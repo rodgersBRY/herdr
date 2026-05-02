@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../core/auth/auth_service.dart';
 import '../../../core/database/database_helper.dart';
 import '../../../core/network/api_error.dart';
+import '../../../core/notifications/notification_service.dart';
 import '../../../core/sync/sync_service.dart';
 import '../../../core/ui/app_snackbar.dart';
 import '../../../routes/app_routes.dart';
@@ -27,6 +28,8 @@ class AuthController extends GetxController {
 
     try {
       await _authService.signIn(email: email, password: password);
+
+      await NotificationService.registerCurrentToken();
 
       if (Get.isRegistered<SyncService>()) {
         await Get.find<SyncService>().syncAll();
@@ -59,6 +62,8 @@ class AuthController extends GetxController {
       );
 
       if (_authService.isAuthenticated.value) {
+        await NotificationService.registerCurrentToken();
+
         if (Get.isRegistered<SyncService>()) {
           await Get.find<SyncService>().syncAll();
         }
@@ -84,6 +89,7 @@ class AuthController extends GetxController {
     isSigningOut.value = true;
 
     try {
+      await NotificationService.unregisterCurrentToken();
       await DatabaseHelper().clearAllTables();
       await _authService.signOut();
 
