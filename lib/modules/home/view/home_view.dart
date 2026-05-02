@@ -40,9 +40,10 @@ class HomeView extends StatelessWidget {
                       style: TextStyle(
                         fontSize: farm != null && farm.isNotEmpty ? 12 : 16,
                         fontWeight: FontWeight.w500,
-                        color: farm != null && farm.isNotEmpty
-                            ? AppTheme.textSecondary
-                            : null,
+                        color:
+                            farm != null && farm.isNotEmpty
+                                ? AppTheme.textSecondary
+                                : null,
                       ),
                     ),
                   ],
