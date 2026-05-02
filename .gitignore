@@ -50,3 +50,6 @@ app.*.map.json
 !.env.example
 
 .firebase/
+
+# Firebase — contains API keys, never commit
+lib/firebase_options.dart
