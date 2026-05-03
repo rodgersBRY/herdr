@@ -1,12 +1,14 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 import '../auth/auth_service.dart';
 import '../network/api_client.dart';
+import 'notification_navigation_service.dart';
 
 class NotificationService {
   NotificationService._();
@@ -55,7 +57,7 @@ class NotificationService {
     await _localNotifications.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
-        debugPrint('Notification clicked: ${response.payload}');
+        _handleLocalNotificationPayload(response.payload);
       },
     );
 
@@ -95,7 +97,9 @@ class NotificationService {
 
     if (initialMessage != null) {
       debugPrint('Notification opened from terminated state');
-      _handleNotificationClick(initialMessage);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _handleNotificationClick(initialMessage);
+      });
     }
 
     _firebaseMessaging.onTokenRefresh.listen((String token) {
@@ -124,7 +128,7 @@ class NotificationService {
           icon: '@mipmap/ic_launcher',
         ),
       ),
-      payload: message.data.toString(),
+      payload: jsonEncode(message.data),
     );
   }
 
@@ -133,14 +137,29 @@ class NotificationService {
 
     debugPrint('Clicked notification data: $data');
 
-    // Example with GetX:
-    //
-    // final screen = data['screen'];
-    // final id = data['id'];
-    //
-    // if (screen == 'report_details') {
-    //   Get.toNamed('/report-details', arguments: {'id': id});
-    // }
+    NotificationNavigationService.handleData(Map<String, dynamic>.from(data));
+  }
+
+  static void _handleLocalNotificationPayload(String? payload) {
+    if (payload == null || payload.isEmpty) {
+      return;
+    }
+
+    try {
+      final decoded = jsonDecode(payload);
+      if (decoded is Map<String, dynamic>) {
+        NotificationNavigationService.handleData(decoded);
+        return;
+      }
+
+      if (decoded is Map) {
+        NotificationNavigationService.handleData(
+          Map<String, dynamic>.from(decoded),
+        );
+      }
+    } catch (error) {
+      debugPrint('Failed to decode notification payload: $error');
+    }
   }
 
   static Future<String?> getFcmToken() async {
